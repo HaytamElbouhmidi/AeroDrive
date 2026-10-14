@@ -22,7 +22,6 @@ This is the order I plan to build things in. I'll check tasks off as they're fin
 
 ### 1. Check feasibility and set up the project
 
-- [ ] Check Android Auto's requirements for navigation, aircraft overlays, and audio controls.
 - [ ] Compare navigation SDKs, flight-data providers, authorized ATC sources, and their costs and usage terms.
 - [ ] Pick an initial test region and set up the Android project.
 - [ ] Build a small Android Auto prototype to check the map, simulated aircraft, and supported controls.
