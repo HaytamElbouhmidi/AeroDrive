@@ -1,0 +1,4 @@
+# Public map configuration, not OpenSky credentials.
+MAP_STYLE_URL=https://tiles.openfreemap.org/styles/liberty
+MAP_NIGHT_STYLE_URL=https://tiles.openfreemap.org/styles/dark
+MAP_ATTRIBUTION=OpenFreeMap | (c) OpenMapTiles | (c) OpenStreetMap contributors

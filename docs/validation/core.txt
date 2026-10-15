@@ -1,0 +1,46 @@
+PASS identical coordinates have zero distance
+PASS distance is symmetric
+PASS destination preserves the requested distance
+PASS bearing and destination agree
+PASS longitude wraps at the dateline
+PASS invalid coordinates are rejected
+PASS blank identifiers are rejected
+PASS callsigns are trimmed
+PASS missing callsign uses the address
+PASS missing positions are excluded
+PASS old positions are excluded
+PASS freshness boundary is inclusive
+PASS future positions beyond clock tolerance are excluded
+PASS ground reports are excluded
+PASS aircraft outside the radius are excluded
+PASS only five aircraft are displayed
+PASS newest duplicate wins
+PASS new ground report replaces an airborne duplicate
+PASS invalid selector settings fail early
+PASS OpenSky latitude and longitude use the correct columns
+PASS OpenSky meters are converted to barometric feet
+PASS OpenSky does not invent aircraft model or operator
+PASS OpenSky null heading stays unknown
+PASS heading 360 is normalized to north
+PASS invalid OpenSky coordinates are rejected
+PASS nonfinite OpenSky coordinates are rejected
+PASS missing position time is not replaced with last contact
+PASS last contact does not refresh a stale position
+PASS short state vectors are skipped
+PASS invalid transponder addresses are skipped
+PASS null altitude is preserved
+PASS ground flag must be a boolean
+PASS fixture records remain visibly simulated
+PASS simulation is deterministic
+PASS simulated positions move
+PASS pause freezes simulation time
+PASS negative and nonfinite simulation steps are rejected
+PASS hiding aircraft also clears selection
+PASS stale fixture clears selection and markers
+PASS switching to OpenSky does not pass simulated tracks as live
+PASS late live result is ignored after returning to simulation
+PASS live positions expire after an error
+PASS OpenSky mode disables simulation controls
+PASS test map and aircraft source are independent
+PASS reset restores simulation without changing the map choice
+45 core checks passed

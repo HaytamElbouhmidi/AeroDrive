@@ -1,0 +1,182 @@
+{
+  "version": 8,
+  "name": "Austin test layout",
+  "sources": {
+    "test-roads": {
+      "type": "geojson",
+      "data": {
+        "type": "FeatureCollection",
+        "features": [
+          {
+            "type": "Feature",
+            "properties": {},
+            "geometry": {
+              "type": "LineString",
+              "coordinates": [
+                [
+                  -97.77,
+                  30.11
+                ],
+                [
+                  -97.755,
+                  30.2
+                ],
+                [
+                  -97.733,
+                  30.267
+                ],
+                [
+                  -97.706,
+                  30.37
+                ],
+                [
+                  -97.67,
+                  30.49
+                ]
+              ]
+            }
+          },
+          {
+            "type": "Feature",
+            "properties": {},
+            "geometry": {
+              "type": "LineString",
+              "coordinates": [
+                [
+                  -97.84,
+                  30.225
+                ],
+                [
+                  -97.77,
+                  30.23
+                ],
+                [
+                  -97.7,
+                  30.224
+                ],
+                [
+                  -97.63,
+                  30.215
+                ],
+                [
+                  -97.52,
+                  30.2
+                ]
+              ]
+            }
+          },
+          {
+            "type": "Feature",
+            "properties": {},
+            "geometry": {
+              "type": "LineString",
+              "coordinates": [
+                [
+                  -97.88,
+                  30.2
+                ],
+                [
+                  -97.795,
+                  30.275
+                ],
+                [
+                  -97.755,
+                  30.375
+                ],
+                [
+                  -97.74,
+                  30.47
+                ]
+              ]
+            }
+          },
+          {
+            "type": "Feature",
+            "properties": {},
+            "geometry": {
+              "type": "LineString",
+              "coordinates": [
+                [
+                  -97.77,
+                  30.33
+                ],
+                [
+                  -97.695,
+                  30.325
+                ],
+                [
+                  -97.6,
+                  30.355
+                ]
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "test-river": {
+      "type": "geojson",
+      "data": {
+        "type": "FeatureCollection",
+        "features": [
+          {
+            "type": "Feature",
+            "properties": {},
+            "geometry": {
+              "type": "LineString",
+              "coordinates": [
+                [
+                  -97.86,
+                  30.29
+                ],
+                [
+                  -97.8,
+                  30.275
+                ],
+                [
+                  -97.76,
+                  30.255
+                ],
+                [
+                  -97.725,
+                  30.245
+                ],
+                [
+                  -97.68,
+                  30.25
+                ]
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  "layers": [
+    {
+      "id": "background",
+      "type": "background",
+      "paint": {
+        "background-color": "#18242b"
+      }
+    },
+    {
+      "id": "water",
+      "type": "line",
+      "source": "test-river",
+      "paint": {
+        "line-color": "#336b82",
+        "line-width": 12
+      }
+    },
+    {
+      "id": "roads",
+      "type": "line",
+      "source": "test-roads",
+      "paint": {
+        "line-color": "#69777b",
+        "line-width": 4
+      }
+    }
+  ]
+}

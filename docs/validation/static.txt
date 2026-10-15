@@ -1,0 +1,8 @@
+PASS assets
+PASS manifest
+PASS build
+PASS bridge_boundary
+PASS python
+PASS docs
+PASS bootstrap
+7 static checks passed. Android compilation and runtime tests are separate.

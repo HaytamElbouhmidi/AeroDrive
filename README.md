@@ -1,75 +1,146 @@
 # AeroDrive
 
-I'm building a navigation app that can tell me what's flying nearby and play local ATC audio.
+I'm building a driving app that shows what's flying nearby and, eventually, plays local ATC audio. Android and Android Auto come first.
 
-**Status:** Planning. No working release yet.
+The app is open source. Core features will stay free. Optional map themes and car icons are planned as one-time purchases, not subscriptions.
 
-## Planned features
+**Status:** Austin source prototype. The core and bridge tests pass, but the Android app still needs its first successful build and phone/head-unit test. There is no tested APK or working turn-by-turn navigation yet.
 
-- Turn-by-turn driving directions with destination search, route previews, ETA, and rerouting.
-- Live nearby aircraft shown on the map without covering the route.
-- Aircraft details, including callsign, operator, model, altitude, and distance when available.
-- Spoken identification for a selected aircraft, with optional automatic announcements.
-- Local ATC playback from authorized feeds.
-- Automatic switching between relevant ATC feeds as I drive, with short audio fades between them.
-- A channel lock to stay on the current feed instead of switching automatically.
-- Navigation instructions taking priority over aircraft announcements and ATC audio.
-- Android and Android Auto first, followed by iPhone and Apple CarPlay.
+## What's here
+
+- MapLibre maps for the phone and an Android Auto map surface, with pan, zoom, and recenter controls.
+- Austin street-map configuration using OpenFreeMap, with no map API key.
+- A bundled test layout for offline map experiments. It is a schematic, not a road map.
+- Fictional aircraft, nearest-aircraft selection, show/hide, pause, and stale-data tests.
+- An optional local OpenSky bridge with OAuth2, shared caching, and rate-limit handling. It starts with fictional fixtures, not live data.
+
+The test origin is fixed in downtown Austin, not the phone's location. Aircraft are filtered to 25 nautical miles, with no more than five displayed. The car's aircraft actions are parked-only. Source changes and test settings stay on the phone.
+
+Maps and aircraft data are independent: the street map can show simulated aircraft, and the bundled test layout can show data from the bridge.
+
+## Stack
+
+| Part | Choice |
+| --- | --- |
+| App | Kotlin and AndroidX Car App Library |
+| Maps | MapLibre Native and OpenFreeMap |
+| Aircraft | OpenSky Network, through a local Python bridge |
+| Tests | Kotlin core checks and Python `unittest` |
+
+MapLibre renders maps; routing is a separate job. Destination search, directions, GPS, live aircraft identification by model/operator, spoken callouts, ATC, and purchases are not implemented.
+
+## Build
+
+Use JDK 17, Android SDK Platform 36, and Build Tools 35.0.0. The minimum Android version is 9. The first build needs internet access to download tools and dependencies.
+
+The Gradle wrapper binaries are not included in this source archive. Run the bootstrap script once before opening the project in Android Studio.
+
+Windows PowerShell:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\bootstrap-gradle.ps1
+```
+
+Linux or macOS:
+
+```bash
+bash tools/bootstrap-gradle.sh
+```
+
+The script downloads Gradle 8.13, verifies its SHA-256, and creates the official wrapper. Open the project in Android Studio, set the Gradle JDK to 17, and let it configure the Android SDK path. Select `debug`.
+
+```bash
+./gradlew :core:test :app:assembleDebug
+./gradlew :app:installDebug
+```
+
+On Windows, use `.\gradlew.bat` instead of `./gradlew`. The expected output after a successful build is `app/build/outputs/apk/debug/app-debug.apk`.
+
+Start with the built-in simulation. It needs no account or bridge. Use **Test map** to switch to the bundled schematic.
+
+[Full setup](docs/setup.md) | [OpenSky bridge](bridge/README.md) | [Android Auto tests](docs/testing.md)
+
+## OpenSky access
+
+OpenSky is the selected aircraft provider, but its data is not covered by this repository's MIT license. Its [current terms](https://opensky-network.org/about/terms-of-use) require a written agreement for operational REST API use, including free apps.
+
+Live mode stays off until that permission is in place. The bridge can be developed and tested entirely with fixtures. Credentials stay on the computer running the bridge, never in the APK or repository. This loopback-only bridge is for local development, not a public service.
+
+## Checks
+
+```bash
+python -m unittest discover -s bridge -p 'test_*.py' -v
+python tools/check-project.py
+bash tools/check-core.sh
+```
+
+The standalone core script needs `kotlinc` and a JDK; Windows has `tools/check-core.ps1`. Gradle runs the same core cases through `:core:test` once the Android toolchain is configured.
+
+Current results: **45 core checks and 29 bridge tests pass**. Android compilation, lint, map rendering, DHU behavior, and live OpenSky access remain unverified. [Validation notes](docs/validation.md) keep those separate.
 
 ## Roadmap
 
-This is the order I plan to build things in. I'll check tasks off as they're finished and tested. Provider permissions can be worked out alongside the prototype, but live features need those permissions before release.
+### 1. Feasibility and project setup
 
-### 1. Check feasibility and set up the project
+- [x] Choose MapLibre, OpenFreeMap, and OpenSky.
+- [x] Set Austin as the first test region.
+- [x] Add the project structure, simulated aircraft, and local bridge.
+- [x] Review provider terms and record the Android Auto questions.
+- [ ] Build the Android app and finish the phone/DHU checklist.
+- [ ] Get platform feedback on aircraft overlays before treating the car UI as release-ready.
 
-- [ ] Compare navigation SDKs, flight-data providers, authorized ATC sources, and their costs and usage terms.
-- [ ] Pick an initial test region and set up the Android project.
-- [ ] Build a small Android Auto prototype to check the map, simulated aircraft, and supported controls.
+### 2. Navigation
 
-### 2. Get navigation working
+- [ ] Evaluate MapLibre Navigation and a self-hosted routing service.
+- [ ] Add destination search, route preview, ETA, directions, and rerouting.
+- [ ] Keep phone and car navigation in sync and usable with aviation features off.
 
-- [ ] Add destination search, route preview, and start/stop navigation.
-- [ ] Add turn-by-turn directions, ETA, remaining distance, and rerouting.
-- [ ] Keep the phone and Android Auto navigation sessions in sync.
-- [ ] Handle reconnects and keep navigation usable with all aviation features turned off.
+### 3. Aircraft identification
 
-### 3. Add aircraft identification with test data
+- [x] Add simulated positions, freshness filtering, and nearest-aircraft selection in the core.
+- [ ] Verify the car controls and map limits on a head unit.
+- [ ] Add spoken identification without interrupting directions.
 
-- [ ] Put simulated aircraft on the map and limit how many are visible at once.
-- [ ] Add aircraft details and an "Identify nearby aircraft" control.
-- [ ] Read the selected aircraft aloud without interrupting directions.
-- [ ] Submit an early Android Auto test build for review feedback before expanding the car interface.
+### 4. Live aircraft
 
-### 4. Connect live aircraft data
+- [x] Add an OpenSky adapter with server-side credentials and fixture tests.
+- [ ] Obtain written permission for the intended display, caching, and app use.
+- [ ] Test live access and Austin coverage, then measure actual request usage.
+- [ ] Add permitted aircraft metadata and opt-in announcements.
 
-- [ ] Confirm permitted access and connect the chosen flight-data provider.
-- [ ] Keep private provider credentials out of the app and public repository.
-- [ ] Handle missing details, stale positions, rate limits, and connection failures.
-- [ ] Add opt-in automatic announcements with cooldowns and no repeated callouts for the same aircraft.
+### 5. ATC playback
 
-### 5. Get ATC playback working
+- [ ] Find an authorized source and confirm its integration terms.
+- [ ] Add feed selection, playback, audio focus, and interruption handling.
 
-- [ ] Confirm permission to use the selected streams and build a small feed directory.
-- [ ] Start with one working feed, then add manual feed selection and play/pause controls.
-- [ ] Handle calls, navigation announcements, connection loss, and playback recovery.
-- [ ] Show when no local feed is available without affecting navigation or aircraft tracking.
+### 6. Automatic ATC switching
 
-### 6. Add automatic ATC switching
+- [ ] Add coverage-based switching, channel lock, and sensible cooldowns.
+- [ ] Test unavailable feeds and transitions around navigation instructions.
 
-- [ ] Choose the most relevant available feed using location and coverage information.
-- [ ] Prevent repeated switching near coverage boundaries or when GPS accuracy is poor.
-- [ ] Check that the next feed works before fading to it, without overlapping conversations or turn instructions.
-- [ ] Add "Stay on this channel" and test what happens when a selected feed goes offline.
+### 7. Android release
 
-### 7. Test and release on Android
+- [ ] Test devices, screens, input modes, reconnects, battery, and data use.
+- [ ] Finish routing, privacy disclosures, dependency notices, provider agreements, and car-app review.
+- [ ] Replace the debug host validator before enabling release builds.
 
-- [ ] Test simulated drives, physical head units, different screen sizes, and supported input methods.
-- [ ] Test GPS loss, weak cellular coverage, long drives, audio interruptions, and Android Auto reconnects.
-- [ ] Measure battery use, data use, and ongoing provider costs, then fix the issues found during beta testing.
-- [ ] Finish privacy disclosures, attribution, provider permissions, and platform review before publishing.
+### 8. iPhone and CarPlay
 
-### 8. Add iPhone and CarPlay
+- [ ] Review platform eligibility and reuse the backend where practical.
+- [ ] Build and test the Apple interfaces separately.
 
-- [ ] Confirm provider support, usage rights, and CarPlay eligibility for the Apple version.
-- [ ] Reuse the backend and data formats where practical, then build the iPhone and CarPlay interfaces.
-- [ ] Run a separate test and review cycle before releasing on Apple platforms.
+## Contributing
+
+Small changes are easier to review. Include the test you ran and update the relevant docs when behavior changes. See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Support
+
+[Ko-fi](https://ko-fi.com/haytamelbouhmidi) | [Patreon](https://www.patreon.com/c/HaytamElbouhmidi)
+
+Support is optional and does not unlock core features.
+
+## License and references
+
+[MIT](LICENSE). Map tiles, aircraft data, and dependencies have their own terms. See [third-party notices](third_party/README.md).
+
+The car renderer uses the approach from [MapLibre's Android Auto sample](https://github.com/maplibre/MapLibre-Android-Auto-Sample). Its license is retained. Other implementation and documentation references are listed in [docs/references.md](docs/references.md).
