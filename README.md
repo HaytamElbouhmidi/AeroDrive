@@ -4,7 +4,7 @@ I'm building a driving app that shows what's flying nearby and, eventually, play
 
 The app is open source. Core features will stay free. Optional map themes and car icons are planned as one-time purchases, not subscriptions.
 
-**Status: 0.2.1-dev, source reviewed.** The standalone checks pass. Android compilation, lint, installation, phone rendering, and DHU behavior have not passed yet. This archive contains source, not an APK. Turn-by-turn navigation is not implemented.
+**Status: 0.2.1-dev, CI setup under repair.** Both repository workflows ran on October 16, 2026, at commit `1e9d856`. The source check stopped on a missing configuration example, and the dependency workflow stopped during SDK setup. Android compilation and lint have not passed. There is no verified APK or phone/DHU result. Turn-by-turn navigation is not implemented.
 
 ## What's here
 
@@ -15,6 +15,16 @@ The app is open source. Core features will stay free. Optional map themes and ca
 - Build validation, evidence collection, a phone/DHU checklist, and an unsubmitted platform-review request.
 
 The origin is not the phone's GPS location. The schematic is not an offline road map. The car's aircraft actions are parked-only. Aircraft visibility while driving is still an unresolved platform question.
+
+## Current CI setup correction
+
+I restored `.gitignore`, `.gitattributes`, `bridge/.env.example`, and `validation/.gitignore`. These are source-controlled templates and rules, not private configuration. The OpenSky example keeps live permission disabled and both credential fields empty.
+
+Both workflows now request only `platform-tools` from `setup-android` and explicitly select command-line tools build `12266719`. The previous action default requested the unavailable `tools` package. The separate SDK installation step still installs Platform 36 and Build Tools 35.0.0. Gradle remains 8.13 and Java remains 17.
+
+This correction has passed local checks against the previous source package with the patches applied. It has not run on GitHub yet. I do not treat local source checks as Android compilation or device testing.
+
+[Failure details and patch steps](docs/ci-setup-fix.md)
 
 ## Gradle dependency-scan correction
 
@@ -92,19 +102,21 @@ python tools/check-project.py
 bash tools/check-core.sh
 ```
 
-| Check | Latest result |
+| Check | Recorded result |
 | --- | --- |
 | Standalone Kotlin core cases | 61 passed using Kotlin CLI 1.9.0 and OpenJDK 21, targeting JVM 17 bytecode |
 | Python bridge tests | 29 passed |
-| Python tooling tests | 45 passed, including 33 runner tests and 12 workflow configuration checks |
+| Python tooling tests | 51 passed locally, including 33 runner tests, 12 workflow checks, and 6 CI setup checks |
 | Source-package checks | 9 passed |
 | Kotlin/Gradle-script syntax | 20 files parsed, syntax only |
 | Workflow YAML and shell syntax | Two workflows parsed, embedded Bash checked, not executed as CI |
-| Android build and lint | Not run, toolchain setup blocked |
+| GitHub source check at `1e9d856` | Failed because `bridge/.env.example` was missing |
+| GitHub dependency submission at `1e9d856` | Failed because SDK setup requested `tools` |
+| Android build and lint | Skipped after the source check failed |
 | Phone and DHU | Not run |
 | Platform feedback | Not submitted |
 
-The standalone core runner does not resolve Android APIs or the Gradle DSL. Runner tests use mocked build commands and do not produce a real APK. The Android build attempt stopped before compilation because the SDK, JDK 17, and wrapper were missing, and the Gradle download failed DNS resolution. [Validation notes and logs](docs/validation.md) record the exact boundary.
+The Kotlin core and syntax results above are retained from the earlier validation record and were not rerun for this CI-only patch. The standalone core runner does not resolve Android APIs or the Gradle DSL. Runner tests use mocked build commands and do not produce a real APK. The Android build attempt stopped before compilation because the SDK, JDK 17, and wrapper were missing, and the Gradle download failed DNS resolution. [Validation notes and logs](docs/validation.md) record the exact boundary.
 
 The dependency-workflow correction has its own [validation record](docs/validation/gradle-workflow-fix/README.md). No current phone or DHU test is needed until the APK build result has been checked.
 
