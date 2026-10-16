@@ -1,0 +1,50 @@
+test_artifact_metadata (test_validate_aerodrive.RunnerTests.test_artifact_metadata) ... ok
+test_blocked_run_keeps_manual_gates_open (test_validate_aerodrive.RunnerTests.test_blocked_run_keeps_manual_gates_open) ... ok
+test_bridge_tunnel_uses_reverse_not_forward (test_validate_aerodrive.RunnerTests.test_bridge_tunnel_uses_reverse_not_forward) ... ok
+test_cannot_start_command (test_validate_aerodrive.RunnerTests.test_cannot_start_command) ... BLOCKED: Source unavailable
+Evidence: /tmp/tmpu8x0nt_s/evidence
+Phone/DHU visual checks and platform feedback are not completed by this runner.
+Running missing
+ok
+test_command_failure_is_not_success (test_validate_aerodrive.RunnerTests.test_command_failure_is_not_success) ... Running failure
+ok
+test_dhu_tunnel_uses_forward_not_reverse (test_validate_aerodrive.RunnerTests.test_dhu_tunnel_uses_forward_not_reverse) ... ok
+test_evidence_directory_is_not_overwritten (test_validate_aerodrive.RunnerTests.test_evidence_directory_is_not_overwritten) ... Cannot create a new evidence directory: [Errno 17] File exists: '/tmp/tmpubufxket'
+ok
+test_explicit_sdk_wins (test_validate_aerodrive.RunnerTests.test_explicit_sdk_wins) ... ok
+test_explicit_serial (test_validate_aerodrive.RunnerTests.test_explicit_serial) ... ok
+test_failed_build_does_not_report_old_apk (test_validate_aerodrive.RunnerTests.test_failed_build_does_not_report_old_apk) ... FAILED: fixture failure
+ok
+test_fingerprint_changes_with_source (test_validate_aerodrive.RunnerTests.test_fingerprint_changes_with_source) ... ok
+test_fingerprint_ignores_build_outputs (test_validate_aerodrive.RunnerTests.test_fingerprint_ignores_build_outputs) ... ok
+test_invalid_serial (test_validate_aerodrive.RunnerTests.test_invalid_serial) ... ok
+test_java_17 (test_validate_aerodrive.RunnerTests.test_java_17) ... ok
+test_java_21 (test_validate_aerodrive.RunnerTests.test_java_21) ... ok
+test_java_8 (test_validate_aerodrive.RunnerTests.test_java_8) ... ok
+test_local_properties_sdk (test_validate_aerodrive.RunnerTests.test_local_properties_sdk) ... ok
+test_missing_artifact (test_validate_aerodrive.RunnerTests.test_missing_artifact) ... ok
+test_missing_sdk (test_validate_aerodrive.RunnerTests.test_missing_sdk) ... ok
+test_mock_build_keeps_manual_gates_open (test_validate_aerodrive.RunnerTests.test_mock_build_keeps_manual_gates_open) ... ok
+test_multiple_devices_need_serial (test_validate_aerodrive.RunnerTests.test_multiple_devices_need_serial) ... ok
+test_no_device (test_validate_aerodrive.RunnerTests.test_no_device) ... ok
+test_offline_device (test_validate_aerodrive.RunnerTests.test_offline_device) ... ok
+test_preflight_fails_without_source (test_validate_aerodrive.RunnerTests.test_preflight_fails_without_source) ... ok
+test_reject_bad_package (test_validate_aerodrive.RunnerTests.test_reject_bad_package) ... ok
+test_reject_missing_manifest (test_validate_aerodrive.RunnerTests.test_reject_missing_manifest) ... ok
+test_reject_path_escape (test_validate_aerodrive.RunnerTests.test_reject_path_escape) ... ok
+test_reject_release_metadata (test_validate_aerodrive.RunnerTests.test_reject_release_metadata) ... ok
+test_reject_split_apk (test_validate_aerodrive.RunnerTests.test_reject_split_apk) ... ok
+test_single_device (test_validate_aerodrive.RunnerTests.test_single_device) ... ok
+test_timeout_is_not_success (test_validate_aerodrive.RunnerTests.test_timeout_is_not_success) ... Evidence: /tmp/tmpkkpt7ns4/evidence
+Phone/DHU visual checks and platform feedback are not completed by this runner.
+Evidence: /tmp/tmpjmtqj_lu/evidence
+Phone/DHU visual checks and platform feedback are not completed by this runner.
+Running timeout
+ok
+test_unauthorized_device (test_validate_aerodrive.RunnerTests.test_unauthorized_device) ... ok
+test_unrecognized_java (test_validate_aerodrive.RunnerTests.test_unrecognized_java) ... ok
+
+----------------------------------------------------------------------
+Ran 33 tests in 0.034s
+
+OK

@@ -1,0 +1,12 @@
+BLOCKED: Missing settings.gradle or settings.gradle.kts
+BLOCKED: Missing app/build.gradle or app/build.gradle.kts
+BLOCKED: Missing core/build.gradle or core/build.gradle.kts
+BLOCKED: Missing app/src/main/AndroidManifest.xml
+BLOCKED: Missing tools/check-project.py
+BLOCKED: Missing gradle/wrapper/gradle-wrapper.jar
+BLOCKED: Missing gradle/wrapper/gradle-wrapper.properties
+BLOCKED: No bridge/test_*.py tests were found
+BLOCKED: Use JDK 17 for this run to match the documented prototype toolchain
+BLOCKED: Android SDK path is missing. Set ANDROID_HOME or pass --sdk
+Evidence: /mnt/data/aerodrive-local-preflight
+Phone/DHU visual checks and platform feedback are not completed by this runner.

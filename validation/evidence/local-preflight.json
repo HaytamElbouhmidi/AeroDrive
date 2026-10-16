@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "started_at": "2026-10-15T21:09:29.246399+00:00",
+  "status": "blocked",
+  "blockers": [
+    "Missing settings.gradle or settings.gradle.kts",
+    "Missing app/build.gradle or app/build.gradle.kts",
+    "Missing core/build.gradle or core/build.gradle.kts",
+    "Missing app/src/main/AndroidManifest.xml",
+    "Missing tools/check-project.py",
+    "Missing gradle/wrapper/gradle-wrapper.jar",
+    "Missing gradle/wrapper/gradle-wrapper.properties",
+    "No bridge/test_*.py tests were found",
+    "Use JDK 17 for this run to match the documented prototype toolchain",
+    "Android SDK path is missing. Set ANDROID_HOME or pass --sdk"
+  ],
+  "build": "not_run",
+  "install": "not_run",
+  "phone_visual_checks": "not_run",
+  "dhu_visual_checks": "not_run",
+  "platform_feedback": "not_submitted",
+  "release_ready": false,
+  "apk": null,
+  "source_fingerprint": {
+    "scope": "Selected source and Gradle inputs, not a full repository attestation",
+    "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "files": {}
+  },
+  "finished_at": "2026-10-15T21:09:29.363236+00:00"
+}
