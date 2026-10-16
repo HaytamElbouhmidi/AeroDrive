@@ -1,6 +1,6 @@
 # Development setup
 
-The first target is the phone simulation, then Android Auto through the Desktop Head Unit. This is a source prototype; the Android build has not been verified yet.
+The first target is the phone simulation, then Android Auto through the Desktop Head Unit. This is a source prototype, the Android build has not been verified yet.
 
 ## Tools
 
@@ -57,7 +57,7 @@ MAP_ATTRIBUTION=OpenFreeMap | (c) OpenMapTiles | (c) OpenStreetMap contributors
 
 These values go into the APK. They are not a place for secret tokens. Both hosted styles must allow this use, and the attribution must cover their actual content. The offline assets use a separate original schematic with no remote fonts, sprites, or tiles.
 
-Phone and car map cameras are independent; traffic state and the selected map mode are shared. The fixed blue origin marker is downtown Austin, not GPS.
+Phone and car map cameras are independent, traffic state and the selected map mode are shared. The fixed blue origin marker is downtown Austin, not GPS.
 
 ## Local bridge
 
@@ -78,7 +78,7 @@ Follow the [head-unit test checklist](testing.md). This is an Android Auto proje
 | Java toolchain error | Install JDK 17 and select it as the Gradle JDK. |
 | Map shows the schematic | Verify network access and the style URL, then toggle Test map / Street map. |
 | Bridge unavailable | Check `adb devices`, the reverse tunnel, server process, and its mode. |
-| Old aircraft disappear | Positions expire after 60 seconds; the cache does not make an old position fresh. |
+| Old aircraft disappear | Positions expire after 60 seconds, the cache does not make an old position fresh. |
 | No aircraft in live mode | Check permission, OAuth credentials, provider responses, coverage, and the fixed Austin bounds. |
 | Car app missing or rejected | Check the current official DHU/developer-mode instructions, installed package, and host logs. Do not assume Play approval. |
 

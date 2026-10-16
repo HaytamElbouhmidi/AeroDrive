@@ -1,0 +1,28 @@
+{
+  "revision": "0.2.1-dev",
+  "core_checks": {
+    "passed": 61,
+    "compiler": "Kotlin CLI 1.9.0",
+    "runtime": "OpenJDK 21.0.12.1",
+    "jvm_target": "17"
+  },
+  "bridge_tests": {
+    "passed": 29
+  },
+  "validation_runner_tests": {
+    "passed": 33,
+    "android_commands_mocked": true
+  },
+  "source_checks": {
+    "passed": 9
+  },
+  "kotlin_syntax_files": 20,
+  "android_build": "not_run_toolchain_blocked",
+  "android_lint": "not_run",
+  "apk_produced": false,
+  "phone": "not_run",
+  "dhu": "not_run",
+  "github_actions": "not_run",
+  "platform_feedback": "not_submitted",
+  "release_ready": false
+}

@@ -24,10 +24,10 @@ class AircraftLayer {
     fun attach(style: Style) {
         lastData = null
         source = GeoJsonSource("aerodrive-aircraft", collection(JSONArray())).also(style::addSource)
-        style.addImage("aerodrive-plane", icon(0xFF007A92.toInt(), true))
-        style.addImage("aerodrive-selected", icon(0xFFD45B00.toInt(), true))
-        style.addImage("aerodrive-unknown", icon(0xFF007A92.toInt(), false))
-        style.addImage("aerodrive-unknown-selected", icon(0xFFD45B00.toInt(), false))
+        style.addImage("aerodrive-plane", icon(0xFF00843D.toInt(), true))
+        style.addImage("aerodrive-selected", icon(0xFF123447.toInt(), true))
+        style.addImage("aerodrive-unknown", icon(0xFF00843D.toInt(), false))
+        style.addImage("aerodrive-unknown-selected", icon(0xFF123447.toInt(), false))
         style.addLayer(SymbolLayer("aerodrive-aircraft-icons", "aerodrive-aircraft").withProperties(
             iconImage(get("icon")), iconRotate(get("heading")), iconSize(0.7f),
             iconRotationAlignment(Property.ICON_ROTATION_ALIGNMENT_MAP),
@@ -36,7 +36,7 @@ class AircraftLayer {
         val origin = point(Austin.origin.longitude, Austin.origin.latitude, JSONObject())
         style.addSource(GeoJsonSource("aerodrive-origin", collection(JSONArray().put(origin))))
         style.addLayer(CircleLayer("aerodrive-origin-dot", "aerodrive-origin").withProperties(
-            circleRadius(6f), circleColor(Color.BLACK), circleStrokeColor(Color.WHITE), circleStrokeWidth(2f)
+            circleRadius(6f), circleColor(0xFF202522.toInt()), circleStrokeColor(Color.WHITE), circleStrokeWidth(2f)
         ))
     }
     fun update(snapshot: TrafficSnapshot) {

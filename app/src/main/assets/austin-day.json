@@ -157,7 +157,7 @@
       "id": "background",
       "type": "background",
       "paint": {
-        "background-color": "#e9eee9"
+        "background-color": "#FAFBFA"
       }
     },
     {
@@ -165,7 +165,7 @@
       "type": "line",
       "source": "test-river",
       "paint": {
-        "line-color": "#8ebbd0",
+        "line-color": "#00843D",
         "line-width": 12
       }
     },
@@ -174,7 +174,7 @@
       "type": "line",
       "source": "test-roads",
       "paint": {
-        "line-color": "#ffffff",
+        "line-color": "#00843D",
         "line-width": 4
       }
     }

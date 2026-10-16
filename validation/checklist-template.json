@@ -222,7 +222,7 @@
       "id": "D09",
       "group": "dhu",
       "name": "Lifecycle resources",
-      "procedure": "Inspect logs and profiling while stopping the screen and destroying its surface. Confirm subscriptions stop and only app-owned rendering resources are released.",
+      "procedure": "Inspect logs and profiling while stopping the screen and destroying its surface. Confirm subscriptions stop and rendering resources and received local Surface handles are released.",
       "status": "pending",
       "observed": "",
       "evidence_files": [],

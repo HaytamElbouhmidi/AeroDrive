@@ -8,33 +8,40 @@ import android.util.Log
 import androidx.car.app.CarContext
 import androidx.car.app.SurfaceCallback
 import androidx.car.app.SurfaceContainer
+import com.haytam.aerodrive.core.MapBounds
+import com.haytam.aerodrive.core.MapViewport
 import com.haytam.aerodrive.core.TrafficSnapshot
 import com.haytam.aerodrive.map.MapPanel
 
-// The virtual-display approach follows MapLibre's Android Auto sample.
-// Its MIT notice is in third_party/maplibre-android-auto-sample.txt.
+// MapLibre's car sample is a reference, not a drop-in renderer.
+// This implementation uses a Presentation on a virtual display.
 class CarMap(private val context: CarContext) : SurfaceCallback {
     private var container: SurfaceContainer? = null
     private var display: VirtualDisplay? = null
     private var presentation: Presentation? = null
     private var panel: MapPanel? = null
     private var state: TrafficSnapshot? = null
-    private var visible: Rect? = null
-    private var stable: Rect? = null
+    private var visible: MapBounds? = null
+    private var stable: MapBounds? = null
     private var started = false
     private var night = false
     private var destroyed = false
 
     override fun onSurfaceAvailable(surfaceContainer: SurfaceContainer) {
-        if (destroyed) return
         val surface = surfaceContainer.surface ?: return
-        if (!surface.isValid || surfaceContainer.width <= 0 || surfaceContainer.height <= 0) return
-        releaseDisplay()
+        if (destroyed || !surface.isValid || surfaceContainer.width <= 0 || surfaceContainer.height <= 0) {
+            if (surface === container?.surface) releaseDisplay() else surface.release()
+            return
+        }
+        // A callback can resize the same Surface instance.
+        releaseDisplay(releaseSurface = surface !== container?.surface)
         container = surfaceContainer
         visible = null
         stable = null
         try {
-            val manager = context.getSystemService(DisplayManager::class.java)
+            val manager = checkNotNull(context.getSystemService(DisplayManager::class.java)) {
+                "Display service unavailable"
+            }
             val target = checkNotNull(manager.createVirtualDisplay(
                 "AeroDrive map", surfaceContainer.width, surfaceContainer.height,
                 surfaceContainer.dpi.coerceAtLeast(160), surface, 0
@@ -49,51 +56,103 @@ class CarMap(private val context: CarContext) : SurfaceCallback {
             map.night(night)
             state?.let(map::update)
             map.view.post { updateSafeArea() }
-            if (started) { map.start(); map.resume() }
+            if (started) {
+                map.start()
+                map.resume()
+            }
         } catch (error: RuntimeException) {
             Log.e("CarMap", "Could not attach the map surface", error)
             releaseDisplay()
         }
     }
+
     override fun onSurfaceDestroyed(surfaceContainer: SurfaceContainer) {
+        val activeSurface = container?.surface
         releaseDisplay()
+        // The destroy callback can contain a separate local Surface handle.
+        surfaceContainer.surface?.takeUnless { it === activeSurface }?.release()
     }
+
     override fun onVisibleAreaChanged(visibleArea: Rect) {
-        visible = Rect(visibleArea)
+        visible = visibleArea.toBounds()
         updateSafeArea()
     }
+
     override fun onStableAreaChanged(stableArea: Rect) {
-        stable = Rect(stableArea)
+        stable = stableArea.toBounds()
         updateSafeArea()
     }
+
+    private fun Rect.toBounds() = MapBounds(left, top, right, bottom)
+
     private fun updateSafeArea() {
         val current = container ?: return
-        val area = Rect(0, 0, current.width, current.height)
-        visible?.let { if (!area.intersect(it)) area.setEmpty() }
-        stable?.let { if (!area.intersect(it)) area.setEmpty() }
-        panel?.safeArea(area)
+        val area = MapViewport.safeBounds(current.width, current.height, visible, stable)
+        panel?.safeArea(Rect(area.left, area.top, area.right, area.bottom))
     }
-    override fun onScroll(distanceX: Float, distanceY: Float) { panel?.scroll(distanceX, distanceY) }
+
+    override fun onScroll(distanceX: Float, distanceY: Float) {
+        panel?.scroll(distanceX, distanceY)
+    }
+
     override fun onScale(focusX: Float, focusY: Float, scaleFactor: Float) {
         panel?.scale(focusX, focusY, scaleFactor)
     }
-    fun update(snapshot: TrafficSnapshot) { state = snapshot; panel?.update(snapshot) }
+
+    fun update(snapshot: TrafficSnapshot) {
+        state = snapshot
+        panel?.update(snapshot)
+    }
+
     fun zoom(delta: Double) { panel?.zoom(delta) }
     fun recenter() { panel?.recenter() }
-    fun night(enabled: Boolean) { night = enabled; panel?.night(enabled) }
-    fun start() { started = true; panel?.start(); panel?.resume() }
-    fun stop() { started = false; panel?.stop() }
-    fun destroy() { destroyed = true; stop(); releaseDisplay() }
-    private fun releaseDisplay() {
-        panel?.destroy()
+
+    fun night(enabled: Boolean) {
+        night = enabled
+        panel?.night(enabled)
+    }
+
+    fun start() {
+        started = true
+        panel?.start()
+        panel?.resume()
+    }
+
+    fun stop() {
+        started = false
+        panel?.stop()
+    }
+
+    fun destroy() {
+        destroyed = true
+        started = false
+        releaseDisplay()
+    }
+
+    private fun releaseDisplay(releaseSurface: Boolean = true) {
+        val oldPanel = panel
+        val oldPresentation = presentation
+        val oldDisplay = display
+        val oldSurface = container?.surface
         panel = null
-        try { presentation?.dismiss() } catch (error: RuntimeException) {
-            Log.w("CarMap", "Presentation already detached", error)
-        }
         presentation = null
-        display?.release()
         display = null
-        // The host owns the Surface. Only the display and map belong to this app.
         container = null
+        visible = null
+        stable = null
+
+        // Cleanup must continue even when one of the resources is already detached.
+        dispose("map") { oldPanel?.destroy() }
+        dispose("presentation") { oldPresentation?.dismiss() }
+        dispose("display") { oldDisplay?.release() }
+        if (releaseSurface) dispose("surface") { oldSurface?.release() }
+    }
+
+    private fun dispose(name: String, close: () -> Unit) {
+        try {
+            close()
+        } catch (error: RuntimeException) {
+            Log.w("CarMap", "Could not release $name", error)
+        }
     }
 }

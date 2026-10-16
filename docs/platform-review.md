@@ -30,7 +30,7 @@ I attach a short screen recording from the actual phone/DHU run once available, 
 
 Internal sharing and internal testing do not receive car form-factor review. Closed testing provides non-blocking car-app feedback. Open testing and production use blocking review. I inspect the actual car-app findings rather than interpreting an accepted closed-track submission as approval of the aircraft feature. [Distribution review][4].
 
-A debug APK installed with ADB is for local development. Before a Play submission, I need a properly signed, non-debuggable review artifact and production-appropriate host validation. This add-on does not enable release builds, introduce a review variant, or substitute an allow-all host validator. I also need a reviewable, honest implementation of the selected category.
+A debug APK installed with ADB is for local development. Before a Play submission, I need a properly signed, non-debuggable review artifact and production-appropriate host validation. This revision does not enable release builds, introduce a review variant, or substitute an allow-all host validator. I also need a reviewable, honest implementation of the selected category.
 
 ## Evidence required from Google
 
@@ -53,7 +53,7 @@ I keep the original response privately and add a redacted copy to the evidence r
 
 Until the question is resolved, the aircraft layer stays an experimental development feature. Any future production car experience must remain usable with aviation disabled. I treat a phone-only aviation layer or a genuinely parked-only layer as options to ask about, not already-approved alternatives.
 
-A usable car release still needs real navigation, proper host trust, provider permissions for live data, privacy and attribution checks, and device validation. This document is a release checklist, not an implemented Gradle release guard. No source-level enforcement was verified in this session.
+A usable car release still needs real navigation, proper host trust, provider permissions for live data, privacy and attribution checks, and device validation. This document is a release checklist. The source build script disables the release variant, and the car service permits its development validator only in debug builds. Those guards were inspected, not executed through a real Android build.
 
 ## References
 

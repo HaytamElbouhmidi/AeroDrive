@@ -1,0 +1,6 @@
+BLOCKED: Missing gradle/wrapper/gradle-wrapper.jar
+BLOCKED: Missing gradle/wrapper/gradle-wrapper.properties
+BLOCKED: Use JDK 17 for this run to match the documented prototype toolchain
+BLOCKED: Android SDK path is missing. Set ANDROID_HOME or pass --sdk
+Evidence: /mnt/data/work/local-build-attempt
+Phone/DHU visual checks and platform feedback are not completed by this runner.

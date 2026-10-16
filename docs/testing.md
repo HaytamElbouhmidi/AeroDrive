@@ -9,10 +9,10 @@ I use fictional traffic first, then the fixture bridge. Live OpenSky testing sta
 I run the full-project bootstrap when needed, then:
 
 ```powershell
-py -3 tools/validate_aerodrive.py --install --dhu
+py -3 tools/validate_aerodrive.py --install
 ```
 
-I do not mark installation as a visual pass. I open the app and inspect it. The runner records its selected source-input hashes and the installed APK SHA-256 in `validation/runs/<RUN>/run.json`. I fill in `manual-checklist.json` in that same run directory.
+I test the phone first. I add `--dhu` only when starting the car checklist. I do not mark installation as a visual pass. I open the app and inspect it. The runner records its selected source-input hashes and the installed APK SHA-256 in `validation/runs/<RUN>/run.json`. I fill in `manual-checklist.json` in that same run directory.
 
 Valid manual statuses are `pending`, `pass`, `fail`, `blocked`, and `not_applicable`. A pass needs an observation and an evidence file. A blocked or not-applicable item needs a reason and does not satisfy a required test. A combined row needs all listed subcases recorded before it can pass.
 
@@ -103,9 +103,9 @@ I never substitute `restrict none` as a test of driving restrictions. A setup co
 | D04 | Parked-only actions | With restrict none, exercise Nearest and Show/Hide. With restrict all, attempt them again and confirm the host prevents their actions. | Pending |
 | D05 | Shared state | While parked, change map, simulation, and source settings on the phone. Confirm the car receives the selected state. | Pending |
 | D06 | Day/night and attribution | Run day and night. Confirm both the map and attribution remain readable and do not collide with host controls. | Pending |
-| D07 | Map safe areas | Use standard and wide profiles. Check visible/stable area handling and confirm host panels do not hide required map content. | Pending |
+| D07 | Map safe areas | Use standard and wide profiles. Check visible/stable area handling, unknown empty rectangles, and clipped intersections. Confirm host panels do not hide required attribution. | Pending |
 | D08 | Reconnect | Disconnect and reconnect the DHU three times. Confirm there are no crashes, persistent blank surfaces, duplicate subscriptions, or stuck controls. | Pending |
-| D09 | Lifecycle resources | Inspect logs and profiling while stopping the screen and destroying its surface. Confirm subscriptions stop and only app-owned rendering resources are released. | Pending |
+| D09 | Lifecycle resources | Inspect logs and profiling while stopping the screen and destroying its surface. Confirm subscriptions stop, rendering resources are detached, and every received local Surface handle is released. Check repeated callbacks using the same handle. | Pending |
 | D10 | Updates and focus | Observe an active simulation for five minutes. Check template refresh behavior, UI focus, and responsiveness while aircraft positions update. | Pending |
 | D11 | Distance wording | Confirm any displayed distance is a snapshot from the fixed Austin origin. No field should imply live GPS navigation or a real ETA. | Pending |
 | D12 | Overlay behavior while restricted | Under restrict all, record whether aircraft remain visible, move, or can be selected. This is an observation for Google, not a policy pass for aircraft overlays. | Pending |
@@ -113,7 +113,7 @@ I never substitute `restrict none` as a test of driving restrictions. A setup co
 
 ## Fixture bridge
 
-I use the bridge commands documented in the original `bridge/README.md`. This add-on does not change its command-line interface or assume a new server filename.
+I use the fixture commands in [bridge/README.md](../bridge/README.md). Credentials and permission are not needed for fixture mode.
 
 | ID | Check | Procedure and expected observation | Status |
 | --- | --- | --- | --- |

@@ -150,6 +150,56 @@ fun runChecks() {
         val engine = TrafficEngine(); engine.toggleTestMap(); engine.setMode(FeedMode.OPENSKY); engine.reset()
         check(engine.snapshot(now).mode == FeedMode.SIMULATION && engine.snapshot(now).testMap)
     }
+
+    test("unknown safe areas use the surface bounds") {
+        check(MapViewport.safeBounds(800, 480, null, null) == MapBounds(0, 0, 800, 480))
+    }
+    test("empty visible area means unknown") {
+        val stable = MapBounds(300, 40, 800, 440)
+        check(MapViewport.safeBounds(800, 480, MapBounds.EMPTY, stable) == stable)
+    }
+    test("empty stable area does not hide a known visible area") {
+        val visible = MapBounds(0, 40, 800, 440)
+        check(MapViewport.safeBounds(800, 480, visible, MapBounds.EMPTY) == visible)
+    }
+    test("two empty callbacks do not hide the map credits") {
+        check(MapViewport.safeBounds(800, 480, MapBounds.EMPTY, MapBounds.EMPTY) == MapBounds(0, 0, 800, 480))
+    }
+    test("visible and stable areas are intersected") {
+        check(MapViewport.safeBounds(800, 480, MapBounds(0, 30, 750, 460), MapBounds(250, 0, 800, 430)) ==
+            MapBounds(250, 30, 750, 430))
+    }
+    test("safe areas are clipped to the actual surface") {
+        check(MapViewport.safeBounds(800, 480, MapBounds(-20, -10, 900, 600), null) == MapBounds(0, 0, 800, 480))
+    }
+    test("disjoint known areas have no usable intersection") {
+        check(MapViewport.safeBounds(800, 480, MapBounds(0, 0, 200, 480), MapBounds(300, 0, 800, 480)).isEmpty)
+    }
+    test("invalid surface dimensions have no usable area") {
+        check(MapViewport.safeBounds(0, 480, null, null).isEmpty)
+        check(MapViewport.safeBounds(800, -1, null, null).isEmpty)
+    }
+    test("surface resize recomputes the safe area") {
+        val visible = MapBounds(100, 20, 1200, 700)
+        check(MapViewport.safeBounds(800, 480, visible, null) == MapBounds(100, 20, 800, 480))
+    }
+    test("negative host focal coordinates fall back to centered zoom") {
+        check(!MapViewport.hasFocus(-1f, 100f))
+        check(!MapViewport.hasFocus(100f, -1f))
+    }
+    test("nonfinite host focal coordinates are unavailable") {
+        check(!MapViewport.hasFocus(Float.NaN, 0f))
+        check(!MapViewport.hasFocus(0f, Float.POSITIVE_INFINITY))
+    }
+    test("zero focal coordinates are valid") { check(MapViewport.hasFocus(0f, 0f)) }
+    test("doubling scale adds one zoom level") { close(MapViewport.zoomDelta(2f)!!, 1.0) }
+    test("halving scale removes one zoom level") { close(MapViewport.zoomDelta(0.5f)!!, -1.0) }
+    test("unit scale leaves zoom unchanged") { close(MapViewport.zoomDelta(1f)!!, 0.0) }
+    test("invalid scale is ignored") {
+        for (scale in listOf(0f, -1f, Float.NaN, Float.POSITIVE_INFINITY)) {
+            check(MapViewport.zoomDelta(scale) == null)
+        }
+    }
     println("$count core checks passed")
 }
 

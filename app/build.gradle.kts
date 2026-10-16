@@ -1,4 +1,5 @@
 import java.util.Properties
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     id("com.android.application")
@@ -25,12 +26,13 @@ require(attribution.isNotBlank()) { "MAP_ATTRIBUTION cannot be empty." }
 android {
     namespace = "com.haytam.aerodrive"
     compileSdk = 36
+    buildToolsVersion = "35.0.0"
     defaultConfig {
         applicationId = "com.haytam.aerodrive"
         minSdk = 28
         targetSdk = 36
-        versionCode = 2
-        versionName = "0.2.0-dev"
+        versionCode = 3
+        versionName = "0.2.1-dev"
         buildConfigField("String", "MAP_STYLE_URL", quoted(dayStyle))
         buildConfigField("String", "MAP_NIGHT_STYLE_URL", quoted(nightStyle))
         buildConfigField("String", "MAP_ATTRIBUTION", quoted(attribution))
@@ -43,7 +45,11 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions { jvmTarget = "17" }
+}
+
+kotlin {
+    jvmToolchain(17)
+    compilerOptions { jvmTarget.set(JvmTarget.JVM_17) }
 }
 
 // Keep the test host validator out of a release APK.

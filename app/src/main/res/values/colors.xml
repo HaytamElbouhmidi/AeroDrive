@@ -1,0 +1,19 @@
+<resources>
+    <color name="primary_green">#00843D</color>
+    <color name="primary_hover">#006B35</color>
+    <color name="primary_pale">#E6F4EC</color>
+    <color name="primary_dark">#202522</color>
+    <color name="muted_silver">#929292</color>
+    <color name="border">#E5E5E5</color>
+    <color name="header_fill">#F2F2F2</color>
+    <color name="secondary_surface">#F4F7F6</color>
+    <color name="accent_navy">#123447</color>
+    <color name="accent_teal">#167C80</color>
+    <color name="warning">#C88A00</color>
+    <color name="warning_pale">#FFF4D6</color>
+    <color name="error">#B42318</color>
+    <color name="error_pale">#FDECEC</color>
+    <color name="app_background">#FAFBFA</color>
+    <color name="app_surface">#FFFFFF</color>
+    <color name="app_text">#202522</color>
+</resources>

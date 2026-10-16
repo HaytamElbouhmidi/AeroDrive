@@ -5,7 +5,7 @@ AeroDrive's code is under the [MIT license](../LICENSE). That does not replace t
 | Component | License or terms | Use here |
 | --- | --- | --- |
 | MapLibre Native | [BSD 2-Clause](maplibre-native.txt) | Android map renderer |
-| MapLibre Android Auto sample | [MIT](maplibre-android-auto-sample.txt) | Reference for the virtual-display and Presentation approach in `CarMap.kt` |
+| MapLibre Android Auto sample | [MIT](maplibre-android-auto-sample.txt) | Car-app structure and texture-rendering reference. AeroDrive uses a separate virtual-display renderer |
 | AndroidX and Kotlin | [Apache 2.0](apache-2.0.txt) | App library, lifecycle, Android utilities, and Kotlin runtime |
 | OpenFreeMap | [Project and hosting information](https://openfreemap.org/) | Default hosted street-map styles and tiles |
 | OpenMapTiles | [Attribution and licensing](https://openmaptiles.org/copyright/) | Schema and cartography used by the hosted map |

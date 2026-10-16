@@ -1,0 +1,2 @@
+20 Kotlin source and Gradle Kotlin DSL files parsed without syntax errors.
+Syntax only. Android symbols, Gradle DSL resolution, and Kotlin 2.3 compilation were not checked.

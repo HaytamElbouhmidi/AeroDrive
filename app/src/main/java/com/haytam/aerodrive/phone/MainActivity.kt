@@ -12,6 +12,8 @@ import android.widget.TextView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.haytam.aerodrive.AeroDriveApp
+import com.haytam.aerodrive.BuildConfig
+import com.haytam.aerodrive.R
 import com.haytam.aerodrive.core.FeedMode
 import com.haytam.aerodrive.core.TrafficSnapshot
 import com.haytam.aerodrive.map.MapPanel
@@ -32,14 +34,26 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         map = MapPanel(this, car = false, savedState = savedInstanceState?.getBundle("map"))
         map.night(resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES)
-        val root = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+        val landscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        val root = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setBackgroundColor(getColor(R.color.app_background))
+        }
+        val body = LinearLayout(this).apply {
+            orientation = if (landscape) LinearLayout.HORIZONTAL else LinearLayout.VERTICAL
+        }
         root.addView(TextView(this).apply {
-            text = "AeroDrive | Austin"
+            text = "AeroDrive | Austin | ${BuildConfig.VERSION_NAME}"
             textSize = 20f
             setPadding(dp(12), dp(8), dp(12), dp(8))
         })
-        root.addView(map.view, LinearLayout.LayoutParams(-1, 0, 1f))
-        val controls = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+        val mapLayout = if (landscape) LinearLayout.LayoutParams(0, -1, 0.60f)
+            else LinearLayout.LayoutParams(-1, 0, 0.55f)
+        body.addView(map.view, mapLayout)
+        val controls = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setBackgroundColor(getColor(R.color.app_surface))
+        }
         status = TextView(this).apply {
             textSize = 14f
             setPadding(dp(12), dp(6), dp(12), dp(6))
@@ -68,13 +82,19 @@ class MainActivity : Activity() {
         row(button("Nearest") { store.nearest() }, aircraft, pause)
         row(button("Zoom +") { map.zoom(1.0) }, button("Zoom -") { map.zoom(-1.0) }, button("Center") { map.recenter() })
         row(source, testMap)
-        row(stale, button("Reset") { store.reset(); map.recenter() }, button("About") { showAbout() })
+        row(stale, button("Reset") {
+            store.reset()
+            map.recenter()
+        }, button("About") { showAbout() })
         controls.addView(TextView(this).apply {
             text = "Fixed test origin, not your location. No directions or ATC."
             textSize = 12f
             setPadding(dp(12), 0, dp(12), dp(8))
         })
-        root.addView(ScrollView(this).apply { addView(controls) }, LinearLayout.LayoutParams(-1, dp(276)))
+        val controlsLayout = if (landscape) LinearLayout.LayoutParams(0, -1, 0.40f)
+            else LinearLayout.LayoutParams(-1, 0, 0.45f)
+        body.addView(ScrollView(this).apply { addView(controls) }, controlsLayout)
+        root.addView(body, LinearLayout.LayoutParams(-1, 0, 1f))
         ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
             view.setPadding(bars.left, bars.top, bars.right, bars.bottom)
@@ -109,17 +129,37 @@ class MainActivity : Activity() {
     }
     private fun showAbout() {
         val text = assets.open("notices.txt").bufferedReader().use { it.readText() }
-        AlertDialog.Builder(this).setTitle("AeroDrive")
+        AlertDialog.Builder(this).setTitle("AeroDrive ${BuildConfig.VERSION_NAME}")
             .setMessage(text).setPositiveButton("Close", null).show()
     }
-    override fun onStart() { super.onStart(); map.start(); store.observe(observer) }
-    override fun onResume() { super.onResume(); map.resume() }
-    override fun onPause() { map.pause(); super.onPause() }
-    override fun onStop() { store.remove(observer); map.stop(); super.onStop() }
-    override fun onDestroy() { map.destroy(); super.onDestroy() }
+    override fun onStart() {
+        super.onStart()
+        map.start()
+        store.observe(observer)
+    }
+    override fun onResume() {
+        super.onResume()
+        map.resume()
+    }
+    override fun onPause() {
+        map.pause()
+        super.onPause()
+    }
+    override fun onStop() {
+        store.remove(observer)
+        map.stop()
+        super.onStop()
+    }
+    override fun onDestroy() {
+        map.destroy()
+        super.onDestroy()
+    }
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putBundle("map", Bundle().also(map::saveState))
         super.onSaveInstanceState(outState)
     }
-    override fun onLowMemory() { super.onLowMemory(); if (::map.isInitialized) map.lowMemory() }
+    override fun onLowMemory() {
+        super.onLowMemory()
+        if (::map.isInitialized) map.lowMemory()
+    }
 }

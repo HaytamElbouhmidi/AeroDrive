@@ -21,8 +21,9 @@ The bundled test layout is an original schematic, not a street map.
 
 MapLibre Android Auto sample
 https://github.com/maplibre/MapLibre-Android-Auto-Sample
-CarMap uses its virtual-display and Presentation approach with AeroDrive's
-shared map panel, lifecycle handling, and host-safe-area handling.
+Reference for car-app structure and texture rendering.
+AeroDrive uses a separate virtual-display and Presentation renderer.
+The reference project's license is retained below.
 
 The MIT License (MIT)
 

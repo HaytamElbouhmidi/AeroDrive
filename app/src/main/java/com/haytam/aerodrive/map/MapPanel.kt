@@ -1,7 +1,6 @@
 package com.haytam.aerodrive.map
 
 import android.content.Context
-import android.graphics.Color
 import android.graphics.PointF
 import android.graphics.Rect
 import android.os.Bundle
@@ -12,6 +11,8 @@ import android.view.View
 import android.widget.FrameLayout
 import android.widget.TextView
 import com.haytam.aerodrive.BuildConfig
+import com.haytam.aerodrive.R
+import com.haytam.aerodrive.core.MapViewport
 import com.haytam.aerodrive.core.Austin
 import com.haytam.aerodrive.core.TrafficSnapshot
 import org.maplibre.android.camera.CameraUpdateFactory
@@ -20,19 +21,19 @@ import org.maplibre.android.maps.MapLibreMap
 import org.maplibre.android.maps.MapLibreMapOptions
 import org.maplibre.android.maps.MapView
 import org.maplibre.android.maps.Style
-import kotlin.math.ln
 
 class MapPanel(context: Context, private val car: Boolean, savedState: Bundle? = null) {
     val view = FrameLayout(context)
     private val options = MapLibreMapOptions.createFromAttributes(context)
+        .textureMode(car)
         .compassEnabled(!car).logoEnabled(!car).attributionEnabled(!car)
         .rotateGesturesEnabled(false).tiltGesturesEnabled(false)
     private val mapView = MapView(context, options)
     private val credits = TextView(context).apply {
         textSize = 12f
-        setTextColor(Color.BLACK)
-        setBackgroundColor(0xEFFFFFFF.toInt())
-        setPadding(8, 3, 8, 3)
+        setTextColor(context.getColor(R.color.app_text))
+        setBackgroundColor(context.getColor(R.color.app_surface))
+        setPadding(dp(8), dp(4), dp(8), dp(4))
         maxLines = 3
     }
     private val handler = Handler(Looper.getMainLooper())
@@ -52,6 +53,7 @@ class MapPanel(context: Context, private val car: Boolean, savedState: Bundle? =
     init {
         view.addView(mapView, FrameLayout.LayoutParams(-1, -1))
         view.addView(credits, FrameLayout.LayoutParams(-2, -2, Gravity.BOTTOM or Gravity.START))
+        view.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ -> updateSafeArea() }
         mapView.onCreate(savedState)
         mapView.addOnDidFailLoadingMapListener {
             handler.post { if (!destroyed && !testMap && !fallback) useFallback() }
@@ -62,7 +64,7 @@ class MapPanel(context: Context, private val car: Boolean, savedState: Bundle? =
                 ready.setMinZoomPreference(7.0)
                 ready.setMaxZoomPreference(17.0)
                 loadStyle()
-                recenter()
+                if (savedState == null) recenter()
                 updateSafeArea()
             }
         }
@@ -122,14 +124,15 @@ class MapPanel(context: Context, private val car: Boolean, savedState: Bundle? =
     }
     fun zoom(delta: Double, focus: PointF? = null) {
         val current = map ?: return
+        if (!delta.isFinite()) return
         val zoom = (current.cameraPosition.zoom + delta).coerceIn(7.0, 17.0)
         if (focus == null) current.moveCamera(CameraUpdateFactory.zoomTo(zoom))
         else current.setZoom(zoom, focus, 0)
     }
     fun scale(focusX: Float, focusY: Float, factor: Float) {
-        if (factor.isFinite() && factor > 0 && focusX.isFinite() && focusY.isFinite()) {
-            zoom(ln(factor.toDouble()) / ln(2.0), PointF(focusX, focusY))
-        }
+        val delta = MapViewport.zoomDelta(factor) ?: return
+        val focus = if (MapViewport.hasFocus(focusX, focusY)) PointF(focusX, focusY) else null
+        zoom(delta, focus)
     }
     fun scroll(x: Float, y: Float) {
         if (x.isFinite() && y.isFinite()) map?.scrollBy(-x, -y, 0)
@@ -146,6 +149,7 @@ class MapPanel(context: Context, private val car: Boolean, savedState: Bundle? =
     private fun updateSafeArea() {
         val area = safeArea ?: return
         if (area.isEmpty) {
+            map?.setPadding(0, 0, 0, 0)
             credits.visibility = View.INVISIBLE
             return
         }
@@ -153,11 +157,16 @@ class MapPanel(context: Context, private val car: Boolean, savedState: Bundle? =
         val right = (view.width - area.right).coerceAtLeast(0)
         val bottom = (view.height - area.bottom).coerceAtLeast(0)
         map?.setPadding(area.left, area.top, right, bottom)
-        credits.layoutParams = FrameLayout.LayoutParams(area.width(), -2, Gravity.BOTTOM or Gravity.START).apply {
-            leftMargin = area.left
-            bottomMargin = bottom
+        val current = credits.layoutParams as FrameLayout.LayoutParams
+        if (current.width != area.width() || current.leftMargin != area.left || current.bottomMargin != bottom) {
+            credits.layoutParams = FrameLayout.LayoutParams(area.width(), -2, Gravity.BOTTOM or Gravity.START).apply {
+                leftMargin = area.left
+                bottomMargin = bottom
+            }
         }
     }
+    private fun dp(value: Int) = (value * view.resources.displayMetrics.density).toInt()
+
     fun start() { if (!started && !destroyed) { mapView.onStart(); started = true } }
     fun resume() { if (!resumed && !destroyed) { mapView.onResume(); resumed = true } }
     fun pause() { if (resumed) { mapView.onPause(); resumed = false } }

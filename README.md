@@ -4,94 +4,103 @@ I'm building a driving app that shows what's flying nearby and, eventually, play
 
 The app is open source. Core features will stay free. Optional map themes and car icons are planned as one-time purchases, not subscriptions.
 
-**Status:** Austin source prototype. Android compilation, phone/DHU validation, and platform feedback are still open. There is no verified APK or working turn-by-turn navigation in this handoff.
+**Status: 0.2.1-dev, source reviewed.** The standalone checks pass. Android compilation, lint, installation, phone rendering, and DHU behavior have not passed yet. This archive contains source, not an APK. Turn-by-turn navigation is not implemented.
 
-> The build-validation add-on contains tools and documentation only. I merge it into the existing MapLibre/OpenSky source project. It is not a standalone app archive. See [START_VALIDATION.md](START_VALIDATION.md).
+## What's here
 
-## Prototype scope
+- MapLibre Native maps with OpenFreeMap street styles and an original offline test schematic.
+- Fictional traffic around a fixed downtown Austin origin, filtered to 25 nautical miles and capped at five aircraft.
+- A shared phone/car traffic state with nearest, show/hide, pause, stale-data, and source controls.
+- An optional local OpenSky bridge with fixture mode, server-side credentials, caching, and rate-limit handling.
+- Build validation, evidence collection, a phone/DHU checklist, and an unsubmitted platform-review request.
 
-The previous source handoff describes MapLibre phone and Android Auto maps with pan, zoom, and recenter controls, an OpenFreeMap street style, and a bundled schematic for offline experiments. The schematic is not a road map.
+The origin is not the phone's GPS location. The schematic is not an offline road map. The car's aircraft actions are parked-only. Aircraft visibility while driving is still an unresolved platform question.
 
-The aircraft source starts with fictional traffic. Selection, visibility, pause, and freshness checks use a fixed downtown Austin origin, a 25 NM radius, and a maximum of five displayed aircraft. Aircraft actions in the car are designed to be parked-only. Those behaviors still require phone and DHU verification.
+## Changes in this revision
 
-An optional local Python bridge provides OpenSky integration with server-side credentials, fixture mode, shared caching, and rate-limit handling. I keep live access disabled until the provider permission and live-integration checks are complete. This local bridge is not a public production service.
+I replaced the removed Kotlin Gradle configuration with typed compiler options and kept the build on JDK 17. I corrected car Surface-handle cleanup, unknown safe-area handling, and zoom events without a usable focal point. Phone recreation no longer forces the map back to the initial camera, and landscape controls sit beside the map rather than consuming a fixed-height panel.
 
-Maps and aircraft data are independent. The street map can show simulated aircraft, and the test layout can show bridge fixtures.
+The app chrome, aircraft symbols, and bundled schematic use the green, navy, and neutral palette. Hosted road-map styles keep their upstream styling and attribution. No custom font files are bundled.
 
-| Part | Choice |
-| --- | --- |
-| App | Kotlin and AndroidX Car App Library |
-| Maps | MapLibre Native and OpenFreeMap |
-| Aircraft | OpenSky Network through a local Python bridge |
-| Validation | Kotlin core checks, Python tests, and recorded phone/DHU runs |
+The earlier validation add-on is already merged here. No second ZIP needs to be merged into this project.
 
-Map rendering does not implement routing. Destination search, turn-by-turn directions, GPS integration, aircraft model/operator enrichment, spoken callouts, ATC, and purchases remain outside this prototype.
+## Get the first APK
 
-## Build
+[First build and phone test](docs/first-build.md) has the handoff steps.
 
-The documented prototype baseline is JDK 17, Android SDK Platform 36, Build Tools 35.0.0, and Android 9 or newer. I keep those versions unchanged for the first reproducible build. Python 3.10 or newer runs the validation tools.
+The repository includes **Build and validate**, a GitHub Actions workflow. It prepares JDK 17 and the Android SDK, bootstraps the checksum-verified Gradle wrapper, runs the checks, attempts a clean debug build and lint, and verifies the APK signature. Only a successful validation run uploads the debug-build artifact. Failure logs are retained when available.
 
-The source handoff omitted the Gradle wrapper binaries. I run the existing bootstrap script first when the wrapper is missing:
+I have not run this workflow on GitHub yet. An uploaded workflow file is not a successful build.
+
+Put the contents of the extracted `aerodrive` directory at the repository root, including `.github`. Commit the files, not the ZIP itself. On GitHub, open **Actions > Build and validate**. A push starts the workflow, or it can be started with **Run workflow** after the workflow is on the default branch.
+
+After a successful run, the `aerodrive-debug-<run number>` artifact contains `app-debug.apk`, its SHA-256 in `run.json`, and the signature log. The separate `aerodrive-build-evidence-<run number>` artifact contains the build evidence. I do not treat an APK artifact as a phone/DHU pass.
+
+## Local build
+
+Use JDK 17, Android SDK Platform 36, Build Tools 35.0.0, and Python 3.10 or later for the validation runner. The Android project is pinned to AGP 8.13.2, Kotlin 2.3.0, and Gradle 8.13. The minimum Android version is 9.
+
+The wrapper binaries are not bundled. From the extracted project root, run the bootstrap once before opening the project in Android Studio.
+
+Windows PowerShell:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\bootstrap-gradle.ps1
 ```
 
-On Linux or macOS:
+Linux or macOS:
 
 ```bash
 bash tools/bootstrap-gradle.sh
 ```
 
-The existing bootstrap is documented to prepare Gradle 8.13. It has not been re-executed or inspected in this validation session.
-
-I open the full project in Android Studio, select JDK 17, configure the SDK path, and select `debug`. Direct build commands are:
-
-```powershell
-.\gradlew.bat :core:test :app:assembleDebug :app:lintDebug
-.\gradlew.bat :app:installDebug
-```
-
-On Linux or macOS I use `./gradlew`. A successful build should produce `app/build/outputs/apk/debug/app-debug.apk`.
-
-### Build with evidence
+The first build needs network access for the tools and dependencies. Open the project in Android Studio, select JDK 17 for Gradle, and let it write the SDK location to `local.properties`. Select the `debug` variant.
 
 ```powershell
 py -3 tools/validate_aerodrive.py --check-only
 py -3 tools/validate_aerodrive.py
 ```
 
-The runner uses the project's official wrapper JAR, runs the existing bridge/static checks and clean Gradle tasks, verifies the debug APK signature, and records a separate run directory. It does not download a substitute project, change dependencies, or enable release builds.
+On Linux/macOS use `python3` in place of `py -3`. The runner writes each result under `validation/runs/`. It never fills in visual checks automatically.
 
-For phone installation and DHU connection setup:
-
-```powershell
-py -3 tools/validate_aerodrive.py --install --dhu
-```
-
-The phone must be connected and authorized, with the Android Auto head-unit server running. Add `--serial SERIAL` to select a device and `--bridge-tunnel` for the local fixture bridge. Installation success is not a visual test result.
-
-[Validation setup](START_VALIDATION.md) | [Phone and DHU checklist](docs/testing.md) | [Recorded status](docs/validation.md)
-
-## Checks
+For a direct Gradle build:
 
 ```powershell
-py -3 -m unittest discover -s bridge -p "test_*.py" -v
-py -3 tools/check-project.py
-py -3 -m unittest discover -s tools/tests -p "test_*.py" -v
+.\gradlew.bat :core:test :app:assembleDebug :app:lintDebug
 ```
 
-The existing standalone Kotlin check uses `tools/check-core.ps1` or `bash tools/check-core.sh`. Gradle runs the core suite with `:core:test` once the full toolchain is available.
+Use `./gradlew` on Linux/macOS. After a successful build, the APK is at `app/build/outputs/apk/debug/app-debug.apk`. Use `--install` with the validation runner only when ready for the phone test, and `--dhu` only when starting the car checklist.
 
-The prior prototype report listed 45 core checks and 29 bridge tests passing. Those original suites were not rerun for this add-on because the source archive could not be accessed. The new validation-runner suite has 33 passing tests. Mock SDK and APK fixtures in that suite do not test Android compilation or rendering.
+[Full setup](docs/setup.md) | [OpenSky bridge](bridge/README.md) | [Phone/DHU checklist](docs/testing.md)
 
-## Platform review
+## Checks and current results
 
-Aircraft-overlay eligibility is unresolved. I do not treat a map that renders, a parked-only button, or a successful testing-track upload as approval of the aviation layer.
+```bash
+python -m unittest discover -s bridge -p 'test_*.py' -v
+python -m unittest discover -s tools/tests -p 'test_*.py' -v
+python tools/check-project.py
+bash tools/check-core.sh
+```
 
-I request written guidance on passive aircraft markers, parked-only alternatives, and marker updates before expanding the car interface. Google requires actual turn-by-turn functionality for the navigation category. The current prototype does not meet that requirement yet.
+| Check | Latest result |
+| --- | --- |
+| Standalone Kotlin core cases | 61 passed using Kotlin CLI 1.9.0 and OpenJDK 21, targeting JVM 17 bytecode |
+| Python bridge tests | 29 passed |
+| Python validation-runner tests | 33 passed |
+| Source-package checks | 9 passed |
+| Kotlin/Gradle-script syntax | 20 files parsed, syntax only |
+| Workflow YAML and shell syntax | Parsed, not executed as CI |
+| Android build and lint | Not run, toolchain setup blocked |
+| Phone and DHU | Not run |
+| Platform feedback | Not submitted |
 
-[Review route and release conditions](docs/platform-review.md) | [Draft question](docs/review/aircraft-overlay-question.md)
+The standalone core runner does not resolve Android APIs or the Gradle DSL. Runner tests use mocked build commands and do not produce a real APK. The Android build attempt stopped before compilation because the SDK, JDK 17, and wrapper were missing, and the Gradle download failed DNS resolution. [Validation notes and logs](docs/validation.md) record the exact boundary.
+
+## OpenSky access
+
+OpenSky is the selected provider, but its data is not licensed by this repository's MIT license. Its [terms](https://opensky-network.org/about/terms-of-use) require an agreement for operational REST API use, including free apps. Live mode stays off until the intended use is authorized.
+
+The bridge starts with fixtures. Credentials belong on the bridge computer, not in the APK or public repository. The loopback-only bridge is a development tool, not a public service. No live OpenSky test or provider agreement has been recorded.
 
 ## Roadmap
 
@@ -99,48 +108,55 @@ I request written guidance on passive aircraft markers, parked-only alternatives
 
 - [x] Choose MapLibre, OpenFreeMap, and OpenSky.
 - [x] Set Austin as the first test region.
-- [x] Prepare the source prototype and local bridge in the earlier handoff.
-- [x] Add a build-evidence runner, test profiles, and platform-review draft.
+- [x] Add the project structure, simulated aircraft, and local bridge.
+- [x] Review provider terms and record the Android Auto questions.
 - [ ] Build the Android app and finish the phone/DHU checklist.
 - [ ] Get platform feedback on aircraft overlays before treating the car UI as release-ready.
 
 ### 2. Navigation
 
-- [ ] Evaluate an open-source routing engine and MapLibre-compatible navigation integration.
-- [ ] Add search, route preview, ETA, directions, and rerouting.
-- [ ] Keep phone and car sessions in sync and useful with aviation features off.
+- [ ] Evaluate MapLibre Navigation and a self-hosted routing service.
+- [ ] Add destination search, route preview, ETA, directions, and rerouting.
+- [ ] Keep phone and car navigation in sync and usable with aviation features off.
 
 ### 3. Aircraft identification
 
-- [ ] Verify simulated positions, freshness, selection, and car controls on devices.
-- [ ] Add spoken identification without interrupting navigation guidance.
+- [x] Add simulated positions, freshness filtering, and nearest-aircraft selection in the core.
+- [ ] Verify the car controls and map limits on a head unit.
+- [ ] Add spoken identification without interrupting directions.
 
 ### 4. Live aircraft
 
-- [ ] Complete provider permission and live OpenSky checks.
-- [ ] Measure Austin coverage, data freshness, and request usage.
-- [ ] Add permitted metadata and opt-in announcements.
+- [x] Add an OpenSky adapter with server-side credentials and fixture tests.
+- [ ] Obtain written permission for the intended display, caching, and app use.
+- [ ] Test live access and Austin coverage, then measure actual request usage.
+- [ ] Add permitted aircraft metadata and opt-in announcements.
 
-### 5. ATC and switching
+### 5. ATC playback
 
-- [ ] Confirm an authorized audio source and its integration terms.
-- [ ] Add playback, audio focus, channel lock, and coverage-based switching.
-- [ ] Test interruptions, unavailable feeds, and navigation priority.
+- [ ] Find an authorized source and confirm its integration terms.
+- [ ] Add feed selection, playback, audio focus, and interruption handling.
 
-### 6. Android release
+### 6. Automatic ATC switching
 
-- [ ] Finish phone, DHU, physical head-unit, reconnect, battery, and data tests.
-- [ ] Complete real navigation, privacy disclosures, notices, and provider agreements.
-- [ ] Replace any debug-only host trust with production host validation.
-- [ ] Resolve aircraft-overlay feedback and obtain the required car-app review outcome.
+- [ ] Add coverage-based switching, channel lock, and sensible cooldowns.
+- [ ] Test unavailable feeds and transitions around navigation instructions.
 
-### 7. iPhone and CarPlay
+### 7. Android release
 
-- [ ] Review eligibility and provider rights, then build and test separately.
+- [ ] Test devices, screens, input modes, reconnects, battery, and data use.
+- [ ] Finish routing, privacy disclosures, dependency notices, provider agreements, and car-app review.
+- [ ] Replace the debug host validator before enabling release builds.
+
+### 8. iPhone and CarPlay
+
+- [ ] Review platform eligibility and reuse the backend where practical.
+- [ ] Build and test the Apple interfaces separately.
+
 
 ## Contributing
 
-I keep changes small and include the checks actually run. New behavior needs matching documentation and tests. A pending checklist item stays pending until there is evidence.
+Keep changes focused, record the checks that actually ran, and update the relevant documentation. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Support
 
@@ -150,6 +166,6 @@ Support is optional and does not unlock core features.
 
 ## License and references
 
-The full source project uses [MIT](LICENSE). Map tiles, aircraft data, and dependencies have separate terms. I retain the existing third-party notices when merging this add-on.
+[MIT](LICENSE). Map tiles, aircraft data, and dependencies have separate terms. See [third-party notices](third_party/README.md).
 
-The previous car renderer references [MapLibre's Android Auto sample](https://github.com/maplibre/MapLibre-Android-Auto-Sample). An implementation example is not approval of AeroDrive's use case. Current platform references are in [docs/platform-review.md](docs/platform-review.md).
+[MapLibre's Android Auto sample](https://github.com/maplibre/MapLibre-Android-Auto-Sample) is a structure and texture-rendering reference. Its sample uses texture-to-canvas rendering. AeroDrive uses a separate virtual-display and Presentation implementation. The upstream notices are retained. Primary documentation and implementation references are in [docs/references.md](docs/references.md).

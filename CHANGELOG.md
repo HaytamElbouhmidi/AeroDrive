@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.2.1-dev
+
+- Replace the removed Kotlin options DSL with typed compiler options and JDK 17 toolchains.
+- Release received car Surface handles and continue cleanup if a display resource is already detached.
+- Treat empty host safe-area rectangles as unknown and handle unavailable zoom focal points.
+- Preserve the phone camera on recreation and use a side-by-side landscape layout.
+- Apply the engineering palette to app chrome, aircraft symbols, and the bundled schematic.
+- Merge the build-validation runner and add failure evidence to the GitHub workflow.
+- Add 16 viewport and gesture core regression cases.
+
+Source checks pass. Android compilation and runtime tests remain pending. No APK was produced in this source-review environment.
+
 ## 0.2.0-dev
 
 - Replaced the Google navigation variant with MapLibre Native and OpenFreeMap.

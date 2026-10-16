@@ -52,6 +52,9 @@ def check_build() -> None:
     build = (ROOT / 'app/build.gradle.kts').read_text()
     require('org.maplibre.gl:android-sdk:12.0.1' in build, 'MapLibre dependency missing')
     require('com.haytam.aerodrive' in build, 'Wrong app namespace')
+    require('kotlinOptions' not in build, 'Kotlin 2.3 requires compilerOptions')
+    require('compilerOptions' in build and 'JvmTarget.JVM_17' in build, 'Missing typed JVM 17 target')
+    require('jvmToolchain(17)' in build, 'App compilation must use the documented JDK')
     require('productFlavors' not in build, 'Legacy build flavors remain')
     require('withBuildType("release")' in build and 'it.enable = false' in build,
             'Release builds must remain disabled with the test validator')
@@ -107,9 +110,26 @@ def check_bootstrap() -> None:
         require('services.gradle.org/distributions/' in text, f'{suffix}: unexpected download source')
 
 
+
+def check_car_viewport() -> None:
+    car = (ROOT / 'app/src/main/java/com/haytam/aerodrive/car/CarMap.kt').read_text()
+    panel = (ROOT / 'app/src/main/java/com/haytam/aerodrive/map/MapPanel.kt').read_text()
+    require('MapViewport.safeBounds(' in car, 'Car map must use the tested safe-area calculation')
+    require('oldSurface?.release()' in car, 'Received surface handles must be released')
+    require('MapViewport.hasFocus(' in panel, 'Unknown host focal points need centered zoom')
+    require('if (savedState == null) recenter()' in panel, 'Recreation must not overwrite the saved camera')
+    require('.textureMode(car)' in panel, 'Car rendering needs texture mode')
+
+
+def check_phone_layout() -> None:
+    phone = (ROOT / 'app/src/main/java/com/haytam/aerodrive/phone/MainActivity.kt').read_text()
+    require('dp(276)' not in phone, 'A fixed control-panel height can collapse a landscape map')
+    require('Configuration.ORIENTATION_LANDSCAPE' in phone, 'Missing landscape control layout')
+    require('BuildConfig.VERSION_NAME' in phone, 'Test captures must identify the app version')
+
 def main() -> int:
     checks = (check_assets, check_manifest, check_build, check_bridge_boundary,
-              check_python, check_docs, check_bootstrap)
+              check_python, check_docs, check_bootstrap, check_car_viewport, check_phone_layout)
     for check in checks:
         try:
             check()

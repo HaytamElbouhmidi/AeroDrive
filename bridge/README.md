@@ -19,7 +19,7 @@ adb devices
 adb reverse tcp:8765 tcp:8765
 ```
 
-Launch AeroDrive and choose **Use OpenSky bridge** on the phone. The server's default response is fictional and must be labeled as a fixture in the app. No OpenSky account or internet access is needed for the fixture source. The street map still needs its own connection; use Test map for the offline layout.
+Launch AeroDrive and choose **Use OpenSky bridge** on the phone. The server's default response is fictional and must be labeled as a fixture in the app. No OpenSky account or internet access is needed for the fixture source. The street map still needs its own connection, use Test map for the offline layout.
 
 Other scenarios:
 
@@ -40,7 +40,7 @@ After permission is in place, copy `.env.example` to `.env` inside this folder. 
 python -m bridge.server --live --env-file bridge/.env
 ```
 
-`OPENSKY_PERMISSION_CONFIRMED=true` records that approval has already been obtained; setting it does not obtain approval. Missing permission or credentials stops startup. Do not commit `.env`, tokens, logs containing credentials, or real data dumps.
+`OPENSKY_PERMISSION_CONFIRMED=true` records that approval has already been obtained, setting it does not obtain approval. Missing permission or credentials stops startup. Do not commit `.env`, tokens, logs containing credentials, or real data dumps.
 
 The adapter uses [OpenSky's documented OAuth2 client-credentials flow](https://openskynetwork.github.io/opensky-api/rest.html#authentication). It refreshes expiring tokens and retries a rejected token once. There is no username/password or account-rotation fallback.
 
