@@ -1,0 +1,50 @@
+{
+  "baseline": "AeroDrive-0.2.1-Source-and-Validation.zip",
+  "scope": "Workflow and documentation patch, app version unchanged",
+  "recorded_at_utc": "2026-10-16T05:14:49.338968+00:00",
+  "results": {
+    "core_checks": {
+      "status": "passed",
+      "count": 61
+    },
+    "bridge_tests": {
+      "status": "passed",
+      "count": 29
+    },
+    "tooling_tests": {
+      "status": "passed",
+      "count": 45,
+      "runner": 33,
+      "workflow_config": 12
+    },
+    "source_checks": {
+      "status": "passed",
+      "count": 9
+    },
+    "workflow_yaml": {
+      "status": "parsed",
+      "count": 2
+    },
+    "embedded_bash_steps": {
+      "status": "parsed",
+      "count": 7
+    },
+    "android_preflight": {
+      "status": "blocked",
+      "exit_code": 2,
+      "missing": [
+        "Gradle wrapper JAR and properties",
+        "JDK 17",
+        "Android SDK"
+      ]
+    },
+    "android_compilation": "not_run",
+    "lint": "not_run",
+    "dependency_submission": "not_run",
+    "github_workflows": "not_run",
+    "phone_dhu": "not_run",
+    "platform_feedback": "not_submitted"
+  },
+  "source_basis": "Uploaded 0.2.1 archive and pasted failure log, current remote files not fetched",
+  "repository_changes_pushed": false
+}

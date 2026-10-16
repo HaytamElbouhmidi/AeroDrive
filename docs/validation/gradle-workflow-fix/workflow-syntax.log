@@ -1,0 +1,5 @@
+PASS .github/workflows/ci.yml: YAML parsed, jobs and Bash steps checked
+PASS .github/workflows/dependency-submission.yml: YAML parsed, jobs and Bash steps checked
+PASS 7 embedded Bash steps parsed
+PASS dependency workflow triggers, job permission, action inputs and version pin
+This checks configuration and syntax, not GitHub Actions execution.

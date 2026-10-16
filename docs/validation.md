@@ -1,5 +1,9 @@
 # Validation record
 
+## Later workflow correction
+
+The reported GitHub automatic dependency scan failed after falling back to Gradle 9.8.1 without a checked-in wrapper. The replacement workflow and its offline checks are recorded in [gradle-workflow-fix/README.md](validation/gradle-workflow-fix/README.md). That correction does not turn any of the original Android or device results below into a pass.
+
 **Revision:** 0.2.1-dev  
 **Review date:** October 15, 2026, America/Chicago  
 **Source:** The supplied MapLibre/OpenSky project archive, with the validation add-on merged and the changes in this revision.

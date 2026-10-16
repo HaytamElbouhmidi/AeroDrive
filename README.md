@@ -16,7 +16,15 @@ The app is open source. Core features will stay free. Optional map themes and ca
 
 The origin is not the phone's GPS location. The schematic is not an offline road map. The car's aircraft actions are parked-only. Aircraft visibility while driving is still an unresolved platform question.
 
-## Changes in this revision
+## Gradle dependency-scan correction
+
+The reported `submit-gradle` failure used Gradle 9.8.1 after finding no `gradlew`. I added a separate **Submit Gradle dependencies** workflow that explicitly selects Gradle 8.13, JDK 17, Android SDK Platform 36, and Build Tools 35.0.0 on Ubuntu 24.04. This is a workflow correction, not an Android compilation result. The app version remains 0.2.1-dev.
+
+After committing the patch, set **Settings > Advanced Security > Dependency graph > Automatic dependency submission** to **Disabled**. Keep the dependency graph and Dependabot alerts enabled. The repository-owned workflow replaces the GitHub-managed scan. Adding the YAML alone does not turn the old scan off.
+
+[Correction and setup](docs/gradle-dependency-fix.md) | [Dependency workflow](.github/workflows/dependency-submission.yml)
+
+## Changes in 0.2.1
 
 I replaced the removed Kotlin Gradle configuration with typed compiler options and kept the build on JDK 17. I corrected car Surface-handle cleanup, unknown safe-area handling, and zoom events without a usable focal point. Phone recreation no longer forces the map back to the initial camera, and landscape controls sit beside the map rather than consuming a fixed-height panel.
 
@@ -30,9 +38,11 @@ The earlier validation add-on is already merged here. No second ZIP needs to be 
 
 The repository includes **Build and validate**, a GitHub Actions workflow. It prepares JDK 17 and the Android SDK, bootstraps the checksum-verified Gradle wrapper, runs the checks, attempts a clean debug build and lint, and verifies the APK signature. Only a successful validation run uploads the debug-build artifact. Failure logs are retained when available.
 
-I have not run this workflow on GitHub yet. An uploaded workflow file is not a successful build.
+No successful APK-build run has been recorded in these notes. The dependency-scan failure is separate from **Build and validate**. An uploaded workflow file is not a successful build.
 
 Put the contents of the extracted `aerodrive` directory at the repository root, including `.github`. Commit the files, not the ZIP itself. On GitHub, open **Actions > Build and validate**. A push starts the workflow, or it can be started with **Run workflow** after the workflow is on the default branch.
+
+The workflow also saves `aerodrive-gradle-wrapper-<run number>` after wrapper generation, before the app build. Its four files can be committed later using [the wrapper instructions](docs/gradle-dependency-fix.md). A wrapper artifact is not proof that the app built.
 
 After a successful run, the `aerodrive-debug-<run number>` artifact contains `app-debug.apk`, its SHA-256 in `run.json`, and the signature log. The separate `aerodrive-build-evidence-<run number>` artifact contains the build evidence. I do not treat an APK artifact as a phone/DHU pass.
 
@@ -86,15 +96,17 @@ bash tools/check-core.sh
 | --- | --- |
 | Standalone Kotlin core cases | 61 passed using Kotlin CLI 1.9.0 and OpenJDK 21, targeting JVM 17 bytecode |
 | Python bridge tests | 29 passed |
-| Python validation-runner tests | 33 passed |
+| Python tooling tests | 45 passed, including 33 runner tests and 12 workflow configuration checks |
 | Source-package checks | 9 passed |
 | Kotlin/Gradle-script syntax | 20 files parsed, syntax only |
-| Workflow YAML and shell syntax | Parsed, not executed as CI |
+| Workflow YAML and shell syntax | Two workflows parsed, embedded Bash checked, not executed as CI |
 | Android build and lint | Not run, toolchain setup blocked |
 | Phone and DHU | Not run |
 | Platform feedback | Not submitted |
 
 The standalone core runner does not resolve Android APIs or the Gradle DSL. Runner tests use mocked build commands and do not produce a real APK. The Android build attempt stopped before compilation because the SDK, JDK 17, and wrapper were missing, and the Gradle download failed DNS resolution. [Validation notes and logs](docs/validation.md) record the exact boundary.
+
+The dependency-workflow correction has its own [validation record](docs/validation/gradle-workflow-fix/README.md). No current phone or DHU test is needed until the APK build result has been checked.
 
 ## OpenSky access
 

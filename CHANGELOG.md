@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+### Build workflows
+
+- Added a dependency-submission workflow with Gradle 8.13, JDK 17, the pinned Android SDK components, and Ubuntu 24.04.
+- Added a wrapper artifact to the APK workflow so the generated official wrapper can be committed later.
+- Added workflow configuration checks and documented replacement of GitHub's automatic dependency scan.
+- Kept all Android and core source code unchanged. No successful APK or device test is recorded by this workflow patch.
+
 ## 0.2.1-dev
 
 - Replace the removed Kotlin options DSL with typed compiler options and JDK 17 toolchains.

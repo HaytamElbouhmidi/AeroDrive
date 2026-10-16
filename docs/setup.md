@@ -1,5 +1,11 @@
 # Development setup
 
+## Dependency-scan setup
+
+Use the repository's **Submit Gradle dependencies** workflow for the dependency graph and **Build and validate** for the APK. Disable only GitHub's **Automatic dependency submission** setting after adding the replacement workflow. Keep the dependency graph and Dependabot alerts enabled. The old automatic job does not run the project's wrapper bootstrap and can select an incompatible Gradle version.
+
+See [the Gradle workflow correction](gradle-dependency-fix.md) for the exact setting, first run, and wrapper-commit instructions.
+
 The first target is the phone simulation, then Android Auto through the Desktop Head Unit. This is a source prototype, the Android build has not been verified yet.
 
 ## Tools
