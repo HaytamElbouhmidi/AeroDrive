@@ -1,0 +1,91 @@
+name: Build and validate
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: aerodrive-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    name: Source and Python tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check the project
+        run: python tools/check-project.py
+      - name: Test the bridge
+        run: python -m unittest discover -s bridge -p 'test_*.py' -v
+      - name: Test the validation runner
+        run: python -m unittest discover -s tools/tests -p 'test_*.py' -v
+
+  android:
+    name: Debug APK and lint
+    needs: checks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - name: Install the pinned SDK components
+        run: sdkmanager "platforms;android-36" "build-tools;35.0.0" "platform-tools"
+      - name: Create the verified Gradle wrapper
+        shell: bash
+        run: |
+          mkdir -p validation/ci-setup
+          set -o pipefail
+          bash tools/bootstrap-gradle.sh 2>&1 | tee validation/ci-setup/bootstrap.log
+      - name: Upload the Gradle wrapper
+        uses: actions/upload-artifact@v4
+        with:
+          name: aerodrive-gradle-wrapper-${{ github.run_number }}
+          if-no-files-found: error
+          retention-days: 14
+          path: |
+            gradlew
+            gradlew.bat
+            gradle/wrapper/gradle-wrapper.jar
+            gradle/wrapper/gradle-wrapper.properties
+      - name: Build and validate
+        run: python tools/validate_aerodrive.py --out validation/runs/ci
+      - name: Upload the verified debug build
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aerodrive-debug-${{ github.run_number }}
+          if-no-files-found: error
+          retention-days: 14
+          path: |
+            validation/runs/ci/app-debug.apk
+            validation/runs/ci/run.json
+            validation/runs/ci/apk-signature.log
+      - name: Upload build evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aerodrive-build-evidence-${{ github.run_number }}
+          if-no-files-found: warn
+          retention-days: 14
+          path: |
+            validation/ci-setup/
+            validation/runs/ci/
+            core/build/reports/tests/
+            core/build/test-results/
+            app/build/reports/lint-results-debug.*
