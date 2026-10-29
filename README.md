@@ -1,10 +1,68 @@
 # AeroDrive
 
-I'm building a driving app that shows what's flying nearby and, eventually, plays local ATC audio. Android and Android Auto come first.
+**A driving-map project with aircraft information alongside the map.**
+
+Version 0.2.1-dev · Early testing · Android 9 or later · Android Auto prototype
+
+I'm building AeroDrive to help you see what's flying nearby without switching between a driving map and a separate flight-tracking app. Android phones and Android Auto come first. Android Auto is the system that displays compatible phone apps on a car's screen.
+
+**The current version is a demonstration, not a finished navigation app.** It shows a map and made-up aircraft around Austin, Texas. It does not yet provide turn-by-turn directions, live flight tracking, or air traffic control radio.
 
 The app is open source. Core features will stay free. Optional map themes and car icons are planned as one-time purchases, not subscriptions.
 
-**Status: 0.2.1-dev, CI setup under repair.** Both repository workflows ran on October 16, 2026, at commit `1e9d856`. The source check stopped on a missing configuration example, and the dependency workflow stopped during SDK setup. Android compilation and lint have not passed. There is no verified APK or phone/DHU result. Turn-by-turn navigation is not implemented.
+[Try the test version](#get-the-first-apk) · [What works now](#what-can-i-do-with-it-now) · [Future plans](#roadmap) · [Build instructions](#local-build)
+
+## What can I do with it now?
+
+The test version lets you explore the map and try the aircraft controls:
+
+- **Nearest:** Select the nearest demonstration aircraft and view its details.
+- **Hide aircraft / Show aircraft:** Remove or restore the aircraft symbols.
+- **Pause:** Stop the made-up aircraft from moving.
+- **Test map:** Open a simple built-in test layout without an internet connection.
+- **Stale test / Restore data:** Check how the app handles aircraft information that has become too old to display.
+
+The map starts at a fixed point in downtown Austin, not your phone's GPS location. It shows at most five fictional aircraft within 25 nautical miles of that point. The built-in test layout is not an offline street map.
+
+The project includes a phone view and an Android Auto view. Aircraft controls in the car view are for use while parked. Whether aircraft can be displayed while driving still needs platform review.
+
+## Is it ready for everyday use?
+
+Not yet. This is for people who want to try an early version and report what works or fails.
+
+The [October 16, 2026 automated build](https://github.com/HaytamElbouhmidi/AeroDrive/actions/runs/38916734207) passed its source checks, Android build, and code checks, then uploaded a test APK. An **APK** is the file used to install an Android app. A **debug APK** is a test build, not a finished public release.
+
+That successful build does not prove the app works correctly on every phone or car display. Phone and car-display testing has not been recorded in the repository's validation notes. Do not rely on this version for driving directions or real aircraft information.
+
+## Get the first APK
+
+For the first test, you need an Android phone running Android 9 or later. You do not need a car, an OpenSky account, or live aircraft data. Test while stationary.
+
+1. Open the [verified test-build page](https://github.com/HaytamElbouhmidi/AeroDrive/actions/runs/38916734207).
+2. Find **Artifacts**, which is GitHub's name for files produced by a build. Download **aerodrive-debug-3**. GitHub may ask you to sign in.
+3. Extract the downloaded ZIP and find **app-debug.apk**.
+4. Follow the [phone installation and test instructions](docs/first-build.md#first-phone-test-only-after-the-build-passes). The current documented installation uses Android Studio or ADB, an Android command-line tool. It is not a one-click installer yet.
+5. Open AeroDrive and try the controls listed above. Start with the built-in demonstration, not the optional live-data bridge.
+
+Build downloads can expire. If that download is no longer available, the [full first-build guide](docs/first-build.md) explains how to create a new test build with GitHub Actions or on your own computer. GitHub Actions builds run on GitHub's computers, so that route does not require installing the Android development tools locally.
+
+**Code > Download ZIP downloads the project source, not an installable phone app.** To install a test build, you need the APK inside a successful build's artifact.
+
+If you report a problem, include your phone model, Android version, what you tapped, and the message or behavior you saw. Keep phone testing separate from testing a car display. The [full checklist](docs/testing.md) covers both.
+
+## What is planned?
+
+- Driving directions, destination search, estimated arrival time, and rerouting.
+- Real nearby aircraft, once the data provider has authorized the intended use.
+- Spoken aircraft identification.
+- Air traffic control audio, once an authorized audio source is available.
+- Further work on the Android Auto experience, followed by separate iPhone and CarPlay work.
+
+These are plans, not features in the current test version. The detailed [roadmap](#roadmap) tracks the remaining work.
+
+## Technical details
+
+The sections below are for building, troubleshooting, or contributing. You do not need to understand the tools listed here just to understand the project.
 
 ## What's here
 
@@ -16,13 +74,13 @@ The app is open source. Core features will stay free. Optional map themes and ca
 
 The origin is not the phone's GPS location. The schematic is not an offline road map. The car's aircraft actions are parked-only. Aircraft visibility while driving is still an unresolved platform question.
 
-## Current CI setup correction
+## CI setup correction history
 
 I restored `.gitignore`, `.gitattributes`, `bridge/.env.example`, and `validation/.gitignore`. These are source-controlled templates and rules, not private configuration. The OpenSky example keeps live permission disabled and both credential fields empty.
 
 Both workflows now request only `platform-tools` from `setup-android` and explicitly select command-line tools build `12266719`. The previous action default requested the unavailable `tools` package. The separate SDK installation step still installs Platform 36 and Build Tools 35.0.0. Gradle remains 8.13 and Java remains 17.
 
-This correction has passed local checks against the previous source package with the patches applied. It has not run on GitHub yet. I do not treat local source checks as Android compilation or device testing.
+The correction subsequently passed on GitHub at commit `c5ae04c` on October 16, 2026. Both [Build and validate](https://github.com/HaytamElbouhmidi/AeroDrive/actions/runs/38916734207) and [Submit Gradle dependencies](https://github.com/HaytamElbouhmidi/AeroDrive/actions/runs/38916734204) succeeded. This corrects the earlier setup failure, not the outstanding phone and car-display testing.
 
 [Failure details and patch steps](docs/ci-setup-fix.md)
 
@@ -30,7 +88,7 @@ This correction has passed local checks against the previous source package with
 
 The reported `submit-gradle` failure used Gradle 9.8.1 after finding no `gradlew`. I added a separate **Submit Gradle dependencies** workflow that explicitly selects Gradle 8.13, JDK 17, Android SDK Platform 36, and Build Tools 35.0.0 on Ubuntu 24.04. This is a workflow correction, not an Android compilation result. The app version remains 0.2.1-dev.
 
-After committing the patch, set **Settings > Advanced Security > Dependency graph > Automatic dependency submission** to **Disabled**. Keep the dependency graph and Dependabot alerts enabled. The repository-owned workflow replaces the GitHub-managed scan. Adding the YAML alone does not turn the old scan off.
+For a repository using this replacement workflow, set **Settings > Advanced Security > Dependency graph > Automatic dependency submission** to **Disabled**. Keep the dependency graph and Dependabot alerts enabled. The repository-owned workflow replaces the GitHub-managed scan. Adding the YAML alone does not turn the old scan off.
 
 [Correction and setup](docs/gradle-dependency-fix.md) | [Dependency workflow](.github/workflows/dependency-submission.yml)
 
@@ -42,15 +100,13 @@ The app chrome, aircraft symbols, and bundled schematic use the green, navy, and
 
 The earlier validation add-on is already merged here. No second ZIP needs to be merged into this project.
 
-## Get the first APK
-
-[First build and phone test](docs/first-build.md) has the handoff steps.
+## Build downloads and workflow details
 
 The repository includes **Build and validate**, a GitHub Actions workflow. It prepares JDK 17 and the Android SDK, bootstraps the checksum-verified Gradle wrapper, runs the checks, attempts a clean debug build and lint, and verifies the APK signature. Only a successful validation run uploads the debug-build artifact. Failure logs are retained when available.
 
-No successful APK-build run has been recorded in these notes. The dependency-scan failure is separate from **Build and validate**. An uploaded workflow file is not a successful build.
+The successful October 16, 2026 run uploaded `aerodrive-debug-3`, `aerodrive-gradle-wrapper-3`, and `aerodrive-build-evidence-3`. Future runs must be checked individually. The dependency scan is separate from **Build and validate**.
 
-Put the contents of the extracted `aerodrive` directory at the repository root, including `.github`. Commit the files, not the ZIP itself. On GitHub, open **Actions > Build and validate**. A push starts the workflow, or it can be started with **Run workflow** after the workflow is on the default branch.
+When importing the project into a new repository, put the project files at the repository root, including `.github`. Commit the files, not the ZIP itself. On GitHub, open **Actions > Build and validate**. A push starts the workflow, or it can be started with **Run workflow** after the workflow is on the default branch.
 
 The workflow also saves `aerodrive-gradle-wrapper-<run number>` after wrapper generation, before the app build. Its four files can be committed later using [the wrapper instructions](docs/gradle-dependency-fix.md). A wrapper artifact is not proof that the app built.
 
@@ -109,16 +165,18 @@ bash tools/check-core.sh
 | Python tooling tests | 51 passed locally, including 33 runner tests, 12 workflow checks, and 6 CI setup checks |
 | Source-package checks | 9 passed |
 | Kotlin/Gradle-script syntax | 20 files parsed, syntax only |
-| Workflow YAML and shell syntax | Two workflows parsed, embedded Bash checked, not executed as CI |
+| Earlier workflow YAML and shell syntax checks | Two workflows parsed and embedded Bash checked locally |
 | GitHub source check at `1e9d856` | Failed because `bridge/.env.example` was missing |
 | GitHub dependency submission at `1e9d856` | Failed because SDK setup requested `tools` |
-| Android build and lint | Skipped after the source check failed |
+| GitHub source and Python checks at `c5ae04c` | Passed on October 16, 2026 |
+| Android build and lint at `c5ae04c` | Passed, test APK uploaded |
+| GitHub dependency submission at `c5ae04c` | Passed |
 | Phone and DHU | Not run |
 | Platform feedback | Not submitted |
 
-The Kotlin core and syntax results above are retained from the earlier validation record and were not rerun for this CI-only patch. The standalone core runner does not resolve Android APIs or the Gradle DSL. Runner tests use mocked build commands and do not produce a real APK. The Android build attempt stopped before compilation because the SDK, JDK 17, and wrapper were missing, and the Gradle download failed DNS resolution. [Validation notes and logs](docs/validation.md) record the exact boundary.
+The standalone Kotlin core and syntax counts above are retained from the earlier local validation record. They are separate from the later successful GitHub build. The standalone core runner does not resolve Android APIs or the Gradle DSL. Runner tests use mocked build commands and do not produce a real APK. An earlier local Android build attempt stopped before compilation because the SDK, JDK 17, and wrapper were missing, and the Gradle download failed DNS resolution. [Validation notes and logs](docs/validation.md) retain that historical result. The linked October 16 GitHub run provides the later successful build result.
 
-The dependency-workflow correction has its own [validation record](docs/validation/gradle-workflow-fix/README.md). No current phone or DHU test is needed until the APK build result has been checked.
+The dependency-workflow correction has its own [validation record](docs/validation/gradle-workflow-fix/README.md). The build gate has now passed. The phone test and DHU test still need separate recorded results. DHU means Desktop Head Unit, Google's car-display test tool.
 
 ## OpenSky access
 
@@ -134,7 +192,8 @@ The bridge starts with fixtures. Credentials belong on the bridge computer, not 
 - [x] Set Austin as the first test region.
 - [x] Add the project structure, simulated aircraft, and local bridge.
 - [x] Review provider terms and record the Android Auto questions.
-- [ ] Build the Android app and finish the phone/DHU checklist.
+- [x] Build the Android app and pass the automated build checks.
+- [ ] Finish the phone/DHU checklist.
 - [ ] Get platform feedback on aircraft overlays before treating the car UI as release-ready.
 
 ### 2. Navigation
