@@ -8,15 +8,17 @@ See [the Gradle workflow correction](gradle-dependency-fix.md) for the exact set
 
 **Revision:** 0.2.1-dev  
 **Owner:** Haytam Elbouhmidi, Mechanical Engineer  
-**Current gate:** A real Android build is still needed. No APK was produced during the source review.
+**Current gate:** The Android build and code checks passed in the [October 16, 2026 run](https://github.com/HaytamElbouhmidi/AeroDrive/actions/runs/38916734207) at commit `c5ae04c`. A test APK was uploaded. The next step is a recorded phone test, followed by the separate car-display checklist.
 
 ## Build using GitHub Actions
 
 This path does not require an Android SDK installation on the computer used to open GitHub.
 
+To use the already verified build, open the [successful run](https://github.com/HaytamElbouhmidi/AeroDrive/actions/runs/38916734207), find **Artifacts**, and download `aerodrive-debug-3`. Extract the ZIP, then continue to [the first phone test](#first-phone-test-only-after-the-build-passes). You may need to sign in to GitHub. If the artifact has expired, or you need to test a newer revision, use the steps below to create a new build.
+
 1. Extract the project archive. Put the contents of its `aerodrive` folder at the repository root. The root should contain `app`, `core`, `bridge`, `.github`, `build.gradle.kts`, and `README.md`. Do not commit only the ZIP or add an extra `aerodrive` nesting level. Preserve any private local configuration outside Git.
 2. Commit and push. Open **Actions > Build and validate**. A push starts a run. To start one manually, the workflow must exist on the default branch and the account must have write access. Select **Run workflow**. [GitHub workflow instructions][1].
-3. Inspect the run. Both **Source and Python tests** and **Debug APK and lint** must pass. The workflow is configured here but has not been executed as part of this handoff.
+3. Inspect the run. Both **Source and Python tests** and **Debug APK and lint** must pass. Both passed in the linked October 16 run. Check every new run separately before using its APK.
 4. In a successful run's **Artifacts** section, download `aerodrive-debug-<run number>` and extract it. It contains the APK, the signature result, and `run.json`. Retain `aerodrive-build-evidence-<run number>` as well. Downloading artifacts requires an appropriate signed-in GitHub account. [Artifact instructions][2].
 
 If a run fails, keep its first failing step and the evidence artifact when one exists. SDK setup can fail before an artifact is produced, so the failed step log is also useful. Do not use an older APK to claim the new revision passed.
